@@ -9,8 +9,12 @@ import '../state/app_state.dart';
 ///
 /// Pairing is the "sign in" of this app: the user runs `opencode pair` on
 /// their computer, then scans or pastes the one-time link here.
+///
+/// [addMode] reuses the same UI from settings to pair an additional server.
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({super.key});
+  const WelcomeScreen({super.key, this.addMode = false});
+
+  final bool addMode;
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -40,7 +44,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       );
       return;
     }
-    if (mounted) setState(() => _working = false);
+    if (!mounted) return;
+    if (widget.addMode && app.phase == AppPhase.ready) {
+      // Added from settings: go back to the server list.
+      Navigator.of(context).pop();
+      return;
+    }
+    setState(() => _working = false);
   }
 
   @override
@@ -48,6 +58,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final app = context.watch<AppState>();
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      appBar: widget.addMode
+          ? AppBar(title: const Text('وصّل سيرفر جديد'))
+          : null,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

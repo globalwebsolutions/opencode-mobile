@@ -159,7 +159,8 @@ class OpenCodeClient {
         .toList();
   }
 
-  Future<List<OcMessage>> getMessages(String sessionID, {int limit = 500}) async {
+  /// Fetches a session's message history. The server caps `limit` at 200.
+  Future<List<OcMessage>> getMessages(String sessionID, {int limit = 200}) async {
     final json = await _getJson('/api/session/$sessionID/message', {
       'limit': '$limit',
       'order': 'asc',

@@ -31,7 +31,7 @@ class FakeOpenCodeClient extends OpenCodeClient {
   Future<List<OcSession>> listSessions({int limit = 100}) async => sessions;
 
   @override
-  Future<List<OcMessage>> getMessages(String sessionID, {int limit = 500}) async =>
+  Future<List<OcMessage>> getMessages(String sessionID, {int limit = 200}) async =>
       List.of(messages);
 
   @override

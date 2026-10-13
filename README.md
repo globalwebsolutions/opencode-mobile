@@ -33,6 +33,7 @@
 
 ## المميزات
 
+###  الميزات الأساسية
 - ✅ **Pairing بالـ QR** — امسح كود `opencode pair` وخلاص
 - ✅ **قائمة المحادثات** — كل الـ sessions بتاعتك بالعناوين والتكلفة والموديل
 - ✅ **Streaming لحظي** — النص بيظهر كلمة كلمة، والتفكير (reasoning) قابل للطي
@@ -41,6 +42,18 @@
 - ✅ **إيقاف التنفيذ** — زرار stop وقت ما الوكيل شغال
 - ✅ **إنشاء جلسات** — اختار المشروع وابدأ محادثة جديدة
 - ✅ **إعادة اتصال تلقائية** + reconciling مع السيرفر بعد أي انقطاع
+
+### 🔥 الميزات المتقدمة
+- ✅ **Multi-Server** — إدارة أكتر من سيرفر OpenCode في نفس التطبيق
+  - إضافة/حذف/تسمية السيرفرات
+  - التبديل بين السيرفرات بضغطة واحدة
+  - كل سيرفر له pairing مستقل
+- ✅ **إشعارات الخلفية (Android)** — تنبيهات فورية وأنت بره التطبيق
+  - تنبيه عند طلب الوكيل صلاحية (مهم جدًا — الوكيل بيستنى ردّك)
+  - تنبيه عند انتهاء/فشل تنفيذ جلسة
+  - خدمة خلفية مستمرة (foreground service) تحافظ على الاتصال
+  - toggle في الإعدادات للتفعيل/الإيقاف
+  - iOS: مش متاح دلوقتي (محتاج push من السيرفر — في الـ roadmap)
 
 ## التسطيب
 
@@ -97,23 +110,26 @@ flutter build ipa --release
 
 ```
 lib/
-├── app.dart                  # MaterialApp + الثيم + التنقل الجذري
+├── app.dart                        # MaterialApp + الثيم + التنقل الجذري
 ├── core/
-│   ├── models.dart           # موديلات الـ API (sessions/messages/parts/events)
-│   ├── opencode_client.dart  # REST + SSE client (Basic auth + reconnect)
-│   └── connection_store.dart # تخزين آمن للـ token (Keychain/Keystore)
+│   ├── models.dart                 # موديلات الـ API (sessions/messages/parts/events)
+│   ├── opencode_client.dart        # REST + SSE client (Basic auth + reconnect)
+│   ├── connection_store.dart       # تخزين آمن لقائمة السيرفرات (v2)
+│   ├── watcher_config.dart         # إعدادات watcher للخلفية (بدون platform channels)
+│   ├── notification_watcher.dart   # TaskHandler للعزلة الخلفية (SSE + poll)
+│   └── notification_center.dart    # Main isolate: init + local notifications
 ├── state/
-│   ├── app_state.dart       # الـ pairing + قناة الأحداث المركزية
-│   ├── sessions_state.dart  # قائمة المحادثات بالتحديث اللحظي
-│   └── chat_state.dart      # الرسائل + الـ streaming + الصلاحيات
+│   ├── app_state.dart              # Multi-server + connection lifecycle + SSE hub
+│   ├── sessions_state.dart         # قائمة المحادثات بالتحديث اللحظي
+│   └── chat_state.dart             # الرسائل + الـ streaming + الصلاحيات
 ├── screens/
-│   ├── welcome_screen.dart  # تسجيل الدخول (pairing)
-│   ├── scanner_screen.dart  # ماسح الـ QR
-│   ├── home_screen.dart     # قائمة المحادثات
-│   ├── new_session_screen.dart # مشروع جديد
-│   ├── chat_screen.dart     # المحادثة
-│   └── settings_screen.dart # الإعدادات + فصل الاتصال
-└── widgets/                  # فقاعات، كروت الأدوات، الصلاحيات، شريط الإدخال
+│   ├── welcome_screen.dart         # pairing (يدعم إضافة سيرفر من الإعدادات)
+│   ├── scanner_screen.dart         # ماسح الـ QR
+│   ├── home_screen.dart            # قائمة المحادثات
+│   ├── new_session_screen.dart     # مشروع جديد
+│   ├── chat_screen.dart            # المحادثة
+│   └── settings_screen.dart        # إدارة السيرفرات + إشعارات الخلفية
+└── widgets/                        # فقاعات، كروت الأدوات، الصلاحيات، شريط الإدخال
 ```
 
 ## ملحوظات تقنية

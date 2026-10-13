@@ -7,10 +7,5 @@
 	<!-- Outgoing HTTP to the OpenCode server. -->
 	<key>com.apple.security.network.client</key>
 	<true/>
-	<!-- Token persistence via flutter_secure_storage (Keychain). -->
-	<key>keychain-access-groups</key>
-	<array>
-		<string>$(AppIdentifierPrefix)dev.opencodemobile.app</string>
-	</array>
 </dict>
 </plist>

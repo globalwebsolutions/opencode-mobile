@@ -98,6 +98,46 @@ class ChatState extends ChangeNotifier {
     }
   }
 
+  // -- models -----------------------------------------------------------------
+
+  List<ModelOption> models = [];
+  bool loadingModels = false;
+
+  /// Loads the model catalog once (cached for the screen's lifetime).
+  Future<void> loadModels() async {
+    final client = _client;
+    if (client == null || loadingModels || models.isNotEmpty) return;
+    loadingModels = true;
+    notifyListeners();
+    try {
+      models = await client.listModels();
+    } catch (e) {
+      error = '$e';
+    } finally {
+      loadingModels = false;
+      notifyListeners();
+    }
+  }
+
+  /// Switches this session's model.
+  Future<void> switchModel(ModelOption model, {String? variant}) async {
+    final client = _client;
+    if (client == null) return;
+    try {
+      await client.setSessionModel(
+        sessionID,
+        ModelRef(
+          id: model.id,
+          providerID: model.providerID,
+          variant: variant,
+        ),
+      );
+    } catch (e) {
+      error = '$e';
+      notifyListeners();
+    }
+  }
+
   /// Clears the transient error banner.
   void clearError() {
     error = null;

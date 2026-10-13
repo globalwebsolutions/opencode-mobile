@@ -410,6 +410,33 @@ class ServerInfo {
       );
 }
 
+/// One selectable model (from GET /api/model → Model.Info).
+class ModelOption {
+  final String id; // modelID, e.g. "glm-5.3"
+  final String providerID;
+  final String name;
+  final List<String> variants;
+
+  const ModelOption({
+    required this.id,
+    required this.providerID,
+    this.name = '',
+    this.variants = const [],
+  });
+
+  String get label => name.isNotEmpty ? name : id;
+
+  factory ModelOption.fromJson(Map<String, dynamic> json) => ModelOption(
+        id: json['modelID'] as String? ?? json['id'] as String? ?? '',
+        providerID: json['providerID'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        variants: [
+          for (final v in (json['variants'] as List? ?? []))
+            if (v is Map && v['id'] is String) v['id'] as String,
+        ],
+      );
+}
+
 /// One decoded SSE event.
 class OcEvent {
   final String id;

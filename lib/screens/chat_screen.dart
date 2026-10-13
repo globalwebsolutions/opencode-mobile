@@ -8,6 +8,7 @@ import '../state/chat_state.dart';
 import '../state/sessions_state.dart';
 import '../widgets/assistant_view.dart';
 import '../widgets/chat_input_bar.dart';
+import '../widgets/model_picker.dart';
 import '../widgets/permission_card.dart';
 import '../widgets/user_bubble.dart';
 
@@ -137,6 +138,12 @@ class _ChatViewState extends State<_ChatView> {
                 ),
               ),
             ),
+          IconButton(
+            icon: const Icon(Icons.smart_toy_outlined),
+            tooltip: 'تغيير الموديل',
+            onPressed: () =>
+                showModelPicker(context, chat, current: session?.model),
+          ),
         ],
       ),
       body: Column(

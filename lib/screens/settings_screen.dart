@@ -41,7 +41,15 @@ class SettingsScreen extends StatelessWidget {
                   value: enabled,
                   onChanged: (val) async {
                     if (val) {
-                      await app.enableNotifications();
+                      final ok = await app.enableNotifications();
+                      if (!ok && context.mounted && app.error != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(app.error!),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
                     } else {
                       await app.disableNotifications();
                     }

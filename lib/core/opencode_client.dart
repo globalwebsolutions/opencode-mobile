@@ -224,6 +224,23 @@ class OpenCodeClient {
         .toList();
   }
 
+  /// Lists the models available on the server (GET /api/model).
+  Future<List<ModelOption>> listModels() async {
+    final json = await _getJson('/api/model');
+    final data = json['data'];
+    if (data is! List) return const [];
+    return data
+        .whereType<Map>()
+        .map((m) => ModelOption.fromJson(Map<String, dynamic>.from(m)))
+        .toList();
+  }
+
+  /// Switches the model used by a session.
+  Future<void> setSessionModel(String sessionID, ModelRef model) async {
+    await _sendJson(
+        'POST', '/api/session/$sessionID/model', {'model': model.toJson()});
+  }
+
   Future<List<PermissionRequest>> listSessionPermissions(String sessionID) async {
     final json = await _getJson('/api/session/$sessionID/permission');
     final data = json['data'];

@@ -112,6 +112,10 @@ class SessionsState extends ChangeNotifier {
           }
         }
         break;
+      case 'session.model.selected':
+      case 'session.agent.selected':
+        _scheduleRefresh();
+        break;
       default:
         break;
     }

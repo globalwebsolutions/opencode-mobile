@@ -112,18 +112,29 @@ class AppState extends ChangeNotifier {
 
   /// Enables the background watcher so the user gets notifications for
   /// permission requests and execution outcomes on the active server.
-  Future<void> enableNotifications() async {
+  /// Returns true on success.
+  Future<bool> enableNotifications() async {
     final c = activeConnection;
-    if (c == null) return;
-    await WatcherConfig.write(
-      WatcherConfig(
-        baseUrl: c.baseUrl,
-        token: c.token,
-        serverName: c.label,
-      ),
-    );
-    await startForegroundService('${c.label} — متواصل');
-    notifyListeners();
+    if (c == null) return false;
+    try {
+      await WatcherConfig.write(
+        WatcherConfig(
+          baseUrl: c.baseUrl,
+          token: c.token,
+          serverName: c.label,
+        ),
+      );
+      await startForegroundService('${c.label} — متواصل');
+      error = null;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      // Roll back the config so the watcher doesn't start on next launch.
+      await WatcherConfig.clear();
+      error = friendlyErrorText(e);
+      notifyListeners();
+      return false;
+    }
   }
 
   /// Disables the background watcher.

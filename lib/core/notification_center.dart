@@ -105,10 +105,22 @@ Future<void> _fireAlert({
 
 /// Starts the foreground service with the given visible label.
 Future<void> startForegroundService(String persistentText) async {
-  // Android 13+ requires explicit notification permission.
-  final permission = await FlutterForegroundTask.requestNotificationPermission();
-  if (permission != NotificationPermission.granted) {
-    throw Exception('إذن الإشعارات مرفوض');
+  // Android 13+ requires explicit notification permission. A cancelled or
+  // denied dialog must not crash the app — surface a clear error instead.
+  try {
+    final permission =
+        await FlutterForegroundTask.requestNotificationPermission();
+    if (permission != NotificationPermission.granted) {
+      throw Exception('لم يتم منح إذن الإشعارات — فعّله من إعدادات النظام');
+    }
+  } catch (e) {
+    final s = '$e';
+    if (s.contains('PermissionRequestCancelled') ||
+        s.contains('denied') ||
+        s.contains('إذن')) {
+      throw Exception('لم يتم منح إذن الإشعارات — جرّب تاني ووافق على النافذة');
+    }
+    rethrow;
   }
   await FlutterForegroundTask.startService(
     notificationTitle: 'OpenCode',

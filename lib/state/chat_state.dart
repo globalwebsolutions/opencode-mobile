@@ -38,10 +38,14 @@ class ChatState extends ChangeNotifier {
 
   /// Loads the message history and, when [thenSend] is provided (a chat
   /// started from the home composer), sends it as the first message.
-  Future<void> bootstrap({String? thenSend}) async {
+  Future<void> bootstrap({
+    String? thenSend,
+    List<OcAttachment> attachments = const [],
+  }) async {
     await load();
-    if (thenSend != null && thenSend.trim().isNotEmpty) {
-      await send(thenSend);
+    final hasText = thenSend != null && thenSend.trim().isNotEmpty;
+    if (hasText || attachments.isNotEmpty) {
+      await send(thenSend ?? '', attachments: attachments);
     }
   }
 

@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../app.dart';
@@ -7,6 +11,7 @@ import '../core/models.dart';
 import '../core/opencode_client.dart' show SseStatus;
 import '../state/app_state.dart';
 import '../state/sessions_state.dart';
+import '../widgets/chat_input_bar.dart';
 import 'chat_screen.dart';
 import 'connect_guide_screen.dart';
 import 'projects_screen.dart';
@@ -30,6 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _creating = false;
   String? _projectsError;
 
+  // صورة مرفقة بالمحادثة الجديدة (من الهوم قبل الإرسال)
+  final ImagePicker _picker = ImagePicker();
+  final List<OcAttachment> _pending = [];
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +49,64 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _textController.dispose();
     super.dispose();
+  }
+
+  /// شيت السفلي: كاميرا أو استوديو
+  Future<void> _pickImage() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(L.tr('كاميرا', 'Camera')),
+              onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(L.tr('من الاستوديو', 'From gallery')),
+              onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+    try {
+      final file = await _picker.pickImage(
+        source: source,
+        maxWidth: 1280,
+        maxHeight: 1280,
+        imageQuality: 82,
+      );
+      if (file == null || !mounted) return;
+      final bytes = await file.readAsBytes();
+      if (!mounted) return;
+      final mime = file.mimeType ??
+          (file.name.toLowerCase().endsWith('.png')
+              ? 'image/png'
+              : 'image/jpeg');
+      setState(() {
+        _pending.add(OcAttachment(
+          dataBase64: base64Encode(bytes),
+          mime: mime,
+          name: file.name,
+        ));
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                L.tr('فشل اختيار الصورة: $e', 'Could not pick image: $e')),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _loadProjects() async {
@@ -71,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _startChat(String text) async {
     final trimmed = text.trim();
-    if (trimmed.isEmpty || _creating) return;
+    if ((trimmed.isEmpty && _pending.isEmpty) || _creating) return;
     final project = _selected;
     if (project == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,6 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     setState(() => _creating = true);
+    final attachments = List<OcAttachment>.of(_pending);
     try {
       final sessions = context.read<SessionsState>();
       final session = await sessions.createSession(
@@ -90,10 +158,14 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       _textController.clear();
       if (!mounted) return;
+      setState(() => _pending.clear());
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) =>
-              ChatScreen(sessionID: session.id, initialMessage: trimmed),
+          builder: (_) => ChatScreen(
+            sessionID: session.id,
+            initialMessage: trimmed,
+            initialAttachments: attachments,
+          ),
         ),
       );
     } catch (e) {
@@ -284,12 +356,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            // Composer — reuses the chat input bar.
-            _HomeComposer(
-              controller: _textController,
+            // Composer — same bar as the chat, with the paperclip.
+            ChatInputBar(
               busy: _creating,
-              onChanged: () => setState(() {}),
               onSend: _startChat,
+              onInterrupt: () {},
+              onAttach: _pickImage,
+              attachments: _pending,
+              onRemoveAttachment: (i) => setState(() => _pending.removeAt(i)),
             ),
           ],
         ),
@@ -315,81 +389,6 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-/// Simple composer with just a send action (no interrupt button).
-class _HomeComposer extends StatelessWidget {
-  const _HomeComposer({
-    required this.controller,
-    required this.busy,
-    required this.onChanged,
-    required this.onSend,
-  });
-
-  final TextEditingController controller;
-  final bool busy;
-  final VoidCallback onChanged;
-  final ValueChanged<String> onSend;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              enabled: !busy,
-              minLines: 1,
-              maxLines: 6,
-              textInputAction: TextInputAction.newline,
-              onChanged: (_) => onChanged(),
-              onSubmitted: (_) => onSend(controller.text),
-              decoration: InputDecoration(
-                hintText: L.tr('اكتب رسالتك لـ OpenCode...', 'Message OpenCode...'),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          ValueListenableBuilder(
-            valueListenable: controller,
-            builder: (context, TextEditingValue value, _) {
-              final ready =
-                  value.text.trim().isNotEmpty && !busy;
-              return busy
-                  ? const SizedBox(
-                      width: 46,
-                      height: 46,
-                      child: Center(
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
-                    )
-                  : IconButton.filled(
-                      onPressed:
-                          ready ? () => onSend(controller.text) : null,
-                      icon: const Icon(Icons.arrow_upward_rounded),
-                      tooltip: L.tr('إرسال', 'Send'),
-                      style: IconButton.styleFrom(
-                        backgroundColor: ready
-                            ? scheme.primary
-                            : scheme.surfaceContainerHighest,
-                        foregroundColor: ready
-                            ? scheme.onPrimary
-                            : scheme.onSurfaceVariant.withValues(alpha: 0.5),
-                      ),
-                    );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /// Small green/yellow/red connectivity pill.
 class _StatusDot extends StatelessWidget {

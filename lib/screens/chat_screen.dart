@@ -18,20 +18,27 @@ import '../widgets/user_bubble.dart';
 
 /// Chat screen for one session, with live streaming and permission handling.
 class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key, required this.sessionID, this.initialMessage});
+  const ChatScreen({
+    super.key,
+    required this.sessionID,
+    this.initialMessage,
+    this.initialAttachments = const [],
+  });
 
   final String sessionID;
 
   /// First user message to send automatically after the history loads —
   /// used when the session is created from the home composer.
   final String? initialMessage;
+  final List<OcAttachment> initialAttachments;
 
   @override
   Widget build(BuildContext context) {
     final app = context.read<AppState>();
     return ChangeNotifierProvider(
       create: (_) => ChatState(app: app, sessionID: sessionID)
-        ..bootstrap(thenSend: initialMessage),
+        ..bootstrap(
+            thenSend: initialMessage, attachments: initialAttachments),
       child: const _ChatView(),
     );
   }

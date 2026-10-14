@@ -119,6 +119,39 @@ def feature_graphic(width: int = 1024, height: int = 500) -> Image.Image:
     return img
 
 
+def ios_icon(size: int) -> Image.Image:
+    """iOS masks the icon itself, so the artwork is a full-bleed opaque square
+    (App Store rejects icons with an alpha channel)."""
+    s = size * SS
+    icon = gradient(s).convert("RGBA")
+    draw_prompt_mark(
+        ImageDraw.Draw(icon),
+        (s * 0.26, s * 0.30, s * 0.74, s * 0.70),
+        (255, 255, 255, 255),
+    )
+    return icon.resize((size, size), Image.LANCZOS).convert("RGB")
+
+
+# Every slot Flutter's AppIcon.appiconset declares (name -> pixels).
+IOS_ICON_SIZES = {
+    "Icon-App-20x20@1x.png": 20,
+    "Icon-App-20x20@2x.png": 40,
+    "Icon-App-20x20@3x.png": 60,
+    "Icon-App-29x29@1x.png": 29,
+    "Icon-App-29x29@2x.png": 58,
+    "Icon-App-29x29@3x.png": 87,
+    "Icon-App-40x40@1x.png": 40,
+    "Icon-App-40x40@2x.png": 80,
+    "Icon-App-40x40@3x.png": 120,
+    "Icon-App-60x60@2x.png": 120,
+    "Icon-App-60x60@3x.png": 180,
+    "Icon-App-76x76@1x.png": 76,
+    "Icon-App-76x76@2x.png": 152,
+    "Icon-App-83.5x83.5@2x.png": 167,
+    "Icon-App-1024x1024@1x.png": 1024,
+}
+
+
 def adaptive_foreground(size: int = 432, fill=(255, 255, 255, 255)) -> Image.Image:
     """Foreground layer of the adaptive icon (108dp canvas, content inside the
     central safe zone so no launcher mask can clip the mark)."""
@@ -217,7 +250,14 @@ def main() -> None:
     # 4) Notification status icon.
     write_notification_icon(os.path.join(RES, "drawable", "ic_stat_ic_notification.xml"))
 
-    # 5) Play Store assets.
+    # 5) iOS app icon set (full-bleed, no alpha).
+    ios_set = os.path.join(ROOT, "ios", "Runner", "Assets.xcassets",
+                           "AppIcon.appiconset")
+    if os.path.isdir(ios_set):
+        for name, pixels in IOS_ICON_SIZES.items():
+            ios_icon(pixels).save(os.path.join(ios_set, name))
+
+    # 6) Play Store assets.
     os.makedirs(STORE, exist_ok=True)
     mark_only(512).convert("RGB").save(os.path.join(STORE, "play_icon_512.png"))
     # Transparent mark for press kits / README.

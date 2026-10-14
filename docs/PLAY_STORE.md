@@ -87,6 +87,27 @@ flutter build appbundle --release
 5. **App access** (مهم جداً) — التطبيق محتاج سيرفر، فالمُراجع لازم يعرف إزاي يجرّبه:
    > The app needs an OpenCode server on the same network. **No server is required to review**: on the pairing screen tap **"جرّب من غير سيرفر — وضع العرض / Try it without a server — demo mode"**. Demo mode ships with sample projects, conversations, a live streaming reply and a permission request. To test the real flow, install OpenCode (`curl -fsSL https://opencode.ai/install | bash`), run `opencode service set hostname 0.0.0.0` and `opencode pair --url http://<LAN-IP>:<PORT>`, then scan the QR from the app.
 
+### ⏱️ مهم للجدول الزمني: اختبار مغلق إجباري
+
+لو حساب Google Play عندك **شخصي واتعمل بعد 13 نوفمبر 2023**، جوجل **مش هتفعّل
+الإنتاج** غير بعد:
+
+> **اختبار مغلق (Closed testing) فيه 12 مختبر على الأقل، مسجّلين (opted in)
+> متواصلين لمدة 14 يوم متصلة.**
+
+- "مسجّل" يعني دخل على لينك الانضمام وسجّل فعلًا — مجرد ما تحط الإيميل في القائمة
+  **مش** بيكفي.
+- لو حد خرج ورجع، الـ 14 يوم بتاعته تبدأ من جديد، ولو العدد نزل تحت 12 الساعة
+  بتبدأ من جديد → **اجمع 15–18 ناخب مختبر** كهامش أمان.
+- جوجل بتبص كمان على إن المختبرين **استخدموا التطبيق فعلًا**، وبتسألك في طلب
+  الإنتاج عن الملاحظات اللي أخدتها واللي عدّلته.
+- الحساب اللي **مؤسسي (Organization)** بـ D-U-N-S معفى من الشرط ده.
+- عمليًا: احسب **3–4 أسابيع** من الـ build الجاهز لحد النشر.
+- المصدر: [App testing requirements for new personal developer accounts](https://support.google.com/googleplay/android-developer/answer/14151465)
+
+**نصيحة**: ابدأ الـ closed testing من بدري وبالتوازي مع تجهيز صفحة المتجر، لأن
+الـ 14 يوم وقت تقويمي مش بيتضغط.
+
 ### هـ) مسار الاختبار
 
 1. **Internal testing** → ارفع الـ AAB → ضيف إيميلات المختبرين (حتى 100) → ابعتلهم لينك الانضمام.

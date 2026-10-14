@@ -116,26 +116,35 @@ flutter build ipa --release
 
 ```
 lib/
-├── app.dart                        # MaterialApp + الثيم + التنقل الجذري
+├── app.dart                        # MaterialApp + الثيم + اللوجو + التنقل الجذري
 ├── core/
 │   ├── models.dart                 # موديلات الـ API (sessions/messages/parts/events)
 │   ├── opencode_client.dart        # REST + SSE client (Basic auth + reconnect)
 │   ├── connection_store.dart       # تخزين آمن لقائمة السيرفرات (v2)
-│   ├── watcher_config.dart         # إعدادات watcher للخلفية (بدون platform channels)
+│   ├── quota.dart                  # الكوتة الشهرية/الأسبوعية (usage API)
+│   ├── usage.dart                  # استهلاكك المحلي (فلوس + توكنز)
+│   ├── demo_client.dart            # وضع العرض: سيرفر وهمي كامل
+│   ├── watcher_config.dart         # إعدادات watcher للخلفية
 │   ├── notification_watcher.dart   # TaskHandler للعزلة الخلفية (SSE + poll)
 │   └── notification_center.dart    # Main isolate: init + local notifications
 ├── state/
 │   ├── app_state.dart              # Multi-server + connection lifecycle + SSE hub
 │   ├── sessions_state.dart         # قائمة المحادثات بالتحديث اللحظي
-│   └── chat_state.dart             # الرسائل + الـ streaming + الصلاحيات
+│   ├── quota_state.dart            # الكوتة + الاستهلاك (مشترك بين 3 شاشات)
+│   ├── chat_state.dart             # الرسائل + الـ streaming + الصلاحيات
+│   └── settings_state.dart         # اللغة + المظهر
 ├── screens/
-│   ├── welcome_screen.dart         # pairing (يدعم إضافة سيرفر من الإعدادات)
+│   ├── welcome_screen.dart         # pairing (+ وضع العرض)
 │   ├── scanner_screen.dart         # ماسح الـ QR
-│   ├── home_screen.dart            # قائمة المحادثات
-│   ├── new_session_screen.dart     # مشروع جديد
+│   ├── home_screen.dart            # الهوم (شريحة الكوتة + المشروع + المقترحات)
 │   ├── chat_screen.dart            # المحادثة
-│   └── settings_screen.dart        # إدارة السيرفرات + إشعارات الخلفية
-└── widgets/                        # فقاعات، كروت الأدوات، الصلاحيات، شريط الإدخال
+│   ├── projects_screen.dart        # المشاريع والمحادثات
+│   └── settings_screen.dart        # السيرفرات + الإشعارات + الكوتة + الفريق
+└── widgets/                        # فقاعات، كروت الأدوات، الصلاحيات، الكوتة، الإدخال
+
+tools/                              # توليد الأيقونات وصور المتجر + مفتاح النشر
+store/                              # أيقونة المتجر + الرسم الترويجي + صور الشاشات
+docs/PLAY_STORE.md                  # خطوات النشر على Google Play
 ```
 
 ## ملحوظات تقنية

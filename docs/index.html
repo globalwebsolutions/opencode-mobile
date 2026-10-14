@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenCode Mobile — Global Web Solutions</title>
+<meta name="description" content="عميل غير رسمي لسيرفر OpenCode — لا تُجمع أي بيانات. Unofficial OpenCode client.">
+<style>
+  :root { --brand:#e8710a; --brand-dark:#c2410c; --ink:#1c1917; --muted:#57534e; --line:#e7e5e4; --bg:#fffbf7; --card:#fff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#f5f5f4; --muted:#a8a29e; --line:#292524; --bg:#141414; --card:#1c1a19; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.7 -apple-system,"Segoe UI",Tahoma,"Noto Naskh Arabic",sans-serif; }
+  header { background:linear-gradient(180deg,#f69830,var(--brand-dark)); color:#fff; padding:44px 20px 40px; }
+  .wrap { max-width:780px; margin:0 auto; }
+  .mark { width:60px; height:60px; border-radius:17px; background:rgba(255,255,255,.16);
+          display:flex; align-items:center; justify-content:center; }
+  h1 { margin:18px 0 6px; font-size:30px; }
+  header p { margin:0; opacity:.93; }
+  main { padding:26px 20px 60px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 22px; margin-top:18px; }
+  h2 { font-size:19px; margin:0 0 10px; }
+  ul { padding-inline-start:20px; }
+  a { color:var(--brand-dark); }
+  @media (prefers-color-scheme: dark) { a { color:#f69830; } }
+  .links { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  .links a { text-decoration:none; border:1px solid var(--line); border-radius:999px;
+             padding:7px 15px; font-size:14.5px; }
+  .links a.primary { background:var(--brand); border-color:var(--brand); color:#fff; }
+  footer { color:var(--muted); font-size:13.5px; text-align:center; padding:0 20px 40px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#fff" stroke-width="2.6"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8.4 5.6 L15.4 12 L8.4 18.4" /><path d="M16 18.4 L21 18.4" />
+      </svg>
+    </div>
+    <h1>OpenCode Mobile</h1>
+    <p>عميل غير رسمي لسيرفر OpenCode — من موبايلك</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="card">
+    <h2>إيه ده؟</h2>
+    <p>
+      تطبيق موبايل (Android &amp; iOS) بيوصّلك بسيرفر <strong>OpenCode</strong> اللي شغّال على
+      جهازك: تشوف محادثاتك، الردود بتتكتب لحظيًا، كروت الأدوات، وتوافق على الصلاحيات —
+      كله من التليفون.
+    </p>
+    <ul>
+      <li>مفيش حسابات ولا تسجيل دخول — QR واحد وخلاص.</li>
+      <li><strong>مفيش جمع بيانات</strong> ولا تتبّع ولا إعلانات.</li>
+      <li>كود مفتوح المصدر تحت ترخيص MIT.</li>
+    </ul>
+    <div class="links">
+      <a class="primary" href="https://github.com/globalwebsolutions/opencode-mobile">الكود على GitHub</a>
+      <a href="privacy/">سياسة الخصوصية</a>
+      <a href="https://github.com/globalwebsolutions/opencode-chat-sidebar/releases">إضافة VS Code</a>
+      <a href="https://globalweb.solutions">GlobalWeb.Solutions</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Privacy Policy</h2>
+    <p>
+      OpenCode Mobile does not collect any personal data — no accounts, no analytics, no ads.
+      Your conversations stay on your own server.
+    </p>
+    <p><a href="privacy/">Read the full policy (العربية / English) →</a></p>
+  </div>
+</main>
+
+<footer>
+  © 2026 Global Web Solutions · مشروع غير رسمي وغير تابع لفريق OpenCode
+</footer>
+</body>
+</html>

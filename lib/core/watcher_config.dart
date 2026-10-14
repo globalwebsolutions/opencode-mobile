@@ -12,23 +12,27 @@ class WatcherConfig {
   final String baseUrl;
   final String token;
   final String serverName;
+  final String lang;
 
   const WatcherConfig({
     required this.baseUrl,
     required this.token,
     this.serverName = '',
+    this.lang = 'arabic',
   });
 
   Map<String, dynamic> toJson() => {
         'baseUrl': baseUrl,
         'token': token,
         'serverName': serverName,
+        'lang': lang,
       };
 
   factory WatcherConfig.fromJson(Map<String, dynamic> json) => WatcherConfig(
         baseUrl: json['baseUrl'] as String? ?? '',
         token: json['token'] as String? ?? '',
         serverName: json['serverName'] as String? ?? '',
+        lang: json['lang'] as String? ?? 'arabic',
       );
 
   static Future<File> _file() async {

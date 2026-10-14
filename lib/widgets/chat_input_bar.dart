@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/l10n.dart';
 
 /// Bottom message composer.
 class ChatInputBar extends StatefulWidget {
@@ -58,8 +59,8 @@ class _ChatInputBarState extends State<ChatInputBar> {
                 onSubmitted: (_) => _send(),
                 decoration: InputDecoration(
                   hintText: widget.busy
-                      ? 'الوكيل شغال حاليًا...'
-                      : 'اكتب رسالتك لـ OpenCode...',
+                      ? L.tr('الوكيل شغال حاليًا...', 'Agent is working...')
+                      : L.tr('اكتب رسالتك لـ OpenCode...', 'Message OpenCode...'),
                 ),
               ),
             ),
@@ -68,7 +69,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                 ? IconButton.filled(
                     onPressed: widget.onInterrupt,
                     icon: const Icon(Icons.stop_rounded),
-                    tooltip: 'إيقاف',
+                    tooltip: L.tr('إيقاف', 'Stop'),
                     style: IconButton.styleFrom(
                       backgroundColor: scheme.errorContainer,
                       foregroundColor: scheme.onErrorContainer,
@@ -81,7 +82,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                       return IconButton.filled(
                         onPressed: ready ? _send : null,
                         icon: const Icon(Icons.arrow_upward_rounded),
-                        tooltip: 'إرسال',
+                        tooltip: L.tr('إرسال', 'Send'),
                         style: IconButton.styleFrom(
                           backgroundColor: ready
                               ? scheme.primary

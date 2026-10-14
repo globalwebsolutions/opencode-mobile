@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app.dart';
+import '../core/l10n.dart';
 import '../core/models.dart';
 import '../core/opencode_client.dart' show SseStatus;
 import '../state/app_state.dart';
@@ -61,11 +62,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  static const _suggestions = [
-    'اشرحلي المشروع ده وإيه بنيته',
-    'صلّح باج في الكود',
-    'أضف ميزة جديدة للمشروع',
-    'راجع التغيرات في الجيت',
+  static final _suggestions = [
+    L.tr('اشرحلي المشروع ده وإيه بنيته', 'Explain this project and its structure'),
+    L.tr('صلّح باج في الكود', 'Fix a bug in the code'),
+    L.tr('أضف ميزة جديدة للمشروع', 'Add a new feature to the project'),
+    L.tr('راجع التغيرات في الجيت', 'Review my latest git changes'),
   ];
 
   Future<void> _startChat(String text) async {
@@ -74,8 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final project = _selected;
     if (project == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('اختار مشروع الأول من الشرائح فوق'),
+        SnackBar(
+          content: Text(L.tr('اختار مشروع الأول من الشرائح فوق', 'Pick a project above first')),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -119,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const AppLogo(size: 28),
             const SizedBox(width: 10),
-            const Text('OpenCode'),
+            Text('OpenCode'),
             const SizedBox(width: 10),
             _StatusDot(app: app),
           ],
@@ -130,21 +131,21 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (_) => const ProjectsScreen()),
             ),
             icon: const Icon(Icons.folder_open_rounded, size: 18),
-            label: const Text('المشاريع'),
+            label: Text(L.tr('المشاريع', 'Projects')),
             style: TextButton.styleFrom(
               foregroundColor: scheme.onSurface,
             ),
           ),
           IconButton(
             icon: const Icon(Icons.help_outline_rounded),
-            tooltip: 'دليل التوصيل',
+            tooltip: L.tr('دليل التوصيل', 'Connection guide'),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ConnectGuideScreen()),
             ),
           ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'الإعدادات',
+            tooltip: L.tr('الإعدادات', 'Settings'),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const SettingsScreen()),
             ),
@@ -163,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 40),
                     // Greeting.
                     Text(
-                      'إزاي أقدر أساعدك النهاردة؟ 👋',
+                      L.tr('إزاي أقدر أساعدك النهاردة؟ 👋', 'How can I help you today? 👋'),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w700,
@@ -172,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'هتبدأ محادثة جديدة في المشروع اللي تختاره',
+                      L.tr('هتبدأ محادثة جديدة في المشروع اللي تختاره', 'A new chat starts in the project you pick'),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: scheme.onSurfaceVariant,
@@ -180,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 28),
                     // Project picker.
-                    _SectionLabel(label: 'المشروع'),
+                    _SectionLabel(label: L.tr('المشروع', 'Project')),
                     const SizedBox(height: 8),
                     if (_loadingProjects)
                       const Center(
@@ -193,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Text(
-                          'مفيش مشاريع على السيرفر ده بعد — ابدأ مشروع من جهازك الأول',
+                          L.tr('مفيش مشاريع على السيرفر ده بعد — ابدأ مشروع من جهازك الأول', 'No projects on this server yet — start one on your computer first'),
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: scheme.onSurfaceVariant,
@@ -235,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     const SizedBox(height: 24),
                     // Suggestions.
-                    _SectionLabel(label: 'مقتراحات سريعة'),
+                    _SectionLabel(label: L.tr('مقتراحات سريعة', 'Quick suggestions')),
                     const SizedBox(height: 8),
                     for (final suggestion in _suggestions)
                       Padding(
@@ -346,7 +347,7 @@ class _HomeComposer extends StatelessWidget {
               onChanged: (_) => onChanged(),
               onSubmitted: (_) => onSend(controller.text),
               decoration: InputDecoration(
-                hintText: 'اكتب رسالتك لـ OpenCode...',
+                hintText: L.tr('اكتب رسالتك لـ OpenCode...', 'Message OpenCode...'),
               ),
             ),
           ),
@@ -372,7 +373,7 @@ class _HomeComposer extends StatelessWidget {
                       onPressed:
                           ready ? () => onSend(controller.text) : null,
                       icon: const Icon(Icons.arrow_upward_rounded),
-                      tooltip: 'إرسال',
+                      tooltip: L.tr('إرسال', 'Send'),
                       style: IconButton.styleFrom(
                         backgroundColor: ready
                             ? scheme.primary
@@ -399,9 +400,9 @@ class _StatusDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (color, label) = switch (app.sseStatus) {
-      SseStatus.connected => (const Color(0xFF22C55E), 'متصل'),
-      SseStatus.connecting => (const Color(0xFFEAB308), 'بيتصل...'),
-      SseStatus.disconnected => (const Color(0xFFEF4444), 'قاطع'),
+      SseStatus.connected => (const Color(0xFF22C55E), L.tr('متصل', 'Connected')),
+      SseStatus.connecting => (const Color(0xFFEAB308), L.tr('بيتصل...', 'Connecting...')),
+      SseStatus.disconnected => (const Color(0xFFEF4444), L.tr('قاطع', 'Offline')),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

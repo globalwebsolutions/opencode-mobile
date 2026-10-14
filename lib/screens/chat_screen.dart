@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:provider/provider.dart';
 
 import '../core/models.dart';
+import '../core/l10n.dart';
 import '../state/app_state.dart';
 import '../state/chat_state.dart';
 import '../state/sessions_state.dart';
@@ -93,7 +94,7 @@ class _ChatViewState extends State<_ChatView> {
       }
     }
     final title =
-        session?.title?.trim().isNotEmpty == true ? session!.title! : 'محادثة';
+        session?.title?.trim().isNotEmpty == true ? session!.title! : L.tr('محادثة', 'Chat');
 
     // Rebuilds arrive on every streamed delta; keep the view pinned to the
     // bottom while the user hasn't scrolled away.
@@ -145,7 +146,7 @@ class _ChatViewState extends State<_ChatView> {
             ),
           IconButton(
             icon: const Icon(Icons.smart_toy_outlined),
-            tooltip: 'تغيير الموديل',
+            tooltip: L.tr('تغيير الموديل', 'Switch model'),
             onPressed: () =>
                 showModelPicker(context, chat, current: session?.model),
           ),
@@ -235,7 +236,7 @@ class _EmptyChat extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'ابدأ المحادثة ✨',
+              L.tr('ابدأ المحادثة ✨', 'Start the chat ✨'),
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -243,7 +244,7 @@ class _EmptyChat extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'اكتب طلبك و OpenCode هيشتغل على المشروع مباشرة',
+              L.tr('اكتب طلبك و OpenCode هيشتغل على المشروع مباشرة', 'Type your request and OpenCode will work on your project right away'),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,

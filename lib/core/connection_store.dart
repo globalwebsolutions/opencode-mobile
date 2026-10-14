@@ -145,6 +145,26 @@ class ConnectionStore {
     await _writeRaw(_legacyKey, null);
   }
 
+  // ---------------------------------------------------------------------------
+  // App config (language & theme preferences)
+  // ---------------------------------------------------------------------------
+
+  static const _configKey = 'opencode_config_v1';
+
+  /// Reads the app config map; returns an empty map when absent/corrupt.
+  Future<Map<String, dynamic>> readConfig() async {
+    final raw = await _readRaw(_configKey);
+    if (raw == null) return {};
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map<String, dynamic>) return decoded;
+    } catch (_) {}
+    return {};
+  }
+
+  Future<void> writeConfig(Map<String, dynamic> config) =>
+      _writeRaw(_configKey, jsonEncode(config));
+
   static String _newId() =>
       'srv_${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecond}';
 

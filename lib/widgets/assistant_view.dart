@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 
 import '../core/models.dart';
+import '../core/l10n.dart';
 import 'tool_card.dart';
 
 /// One assistant message: reasoning, markdown text, and tool cards,
@@ -37,7 +38,7 @@ class AssistantView extends StatelessWidget {
             child: ToolCard(part: part),
           ),
       if (streaming)
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(top: 6, bottom: 2),
           child: _StreamingCursor(),
         ),
@@ -127,7 +128,7 @@ class _ReasoningTileState extends State<_ReasoningTile> {
               color: scheme.onSurfaceVariant,
             ),
             title: Text(
-              text.isEmpty ? 'بيفكر...' : 'التفكير',
+              text.isEmpty ? L.tr('بيفكر...', 'Thinking...') : L.tr('التفكير', 'Thought'),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: scheme.onSurfaceVariant,
                 fontWeight: FontWeight.w600,

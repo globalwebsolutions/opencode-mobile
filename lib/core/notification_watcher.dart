@@ -10,6 +10,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:opencode_mobile/core/l10n.dart';
 import 'package:opencode_mobile/core/models.dart';
 import 'package:opencode_mobile/core/opencode_client.dart';
 import 'package:opencode_mobile/core/watcher_config.dart';
@@ -34,6 +35,8 @@ class _WatcherTask extends TaskHandler {
       await FlutterForegroundTask.stopService();
       return;
     }
+    L.lang =
+        config.lang == 'english' ? AppLang.english : AppLang.arabic;
     _client = OpenCodeClient(baseUrl: config.baseUrl, token: config.token);
     _sub = _client!
         .events(onStatus: (_) {})
@@ -62,13 +65,13 @@ class _WatcherTask extends TaskHandler {
     if (sid == null) return;
     switch (e.type) {
       case 'session.execution.succeeded':
-        await _sendOutcome(sid, 'تم التنفيذ');
+        await _sendOutcome(sid, L.tr('تم التنفيذ', 'Finished'));
         break;
       case 'session.execution.failed':
-        await _sendOutcome(sid, 'فشل التنفيذ');
+        await _sendOutcome(sid, L.tr('فشل التنفيذ', 'Run failed'));
         break;
       case 'session.execution.interrupted':
-        await _sendOutcome(sid, 'توقف التنفيذ');
+        await _sendOutcome(sid, L.tr('توقف التنفيذ', 'Run stopped'));
         break;
     }
   }
@@ -111,7 +114,7 @@ class _WatcherTask extends TaskHandler {
     final cached = _sessionTitles[sessionId];
     if (cached != null) return cached;
     // Fall back to a friendly placeholder; titles are refreshed lazily.
-    return 'جلسة';
+    return L.tr('جلسة', 'Session');
   }
 
   Future<void> _refreshTitles() async {

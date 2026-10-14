@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/app.dart';
+import 'package:opencode_mobile/core/connection_store.dart';
+import 'package:opencode_mobile/core/l10n.dart';
 import 'package:opencode_mobile/core/models.dart';
 import 'package:opencode_mobile/core/opencode_client.dart';
 import 'package:opencode_mobile/state/app_state.dart';
+import 'package:opencode_mobile/state/settings_state.dart';
 
 /// Deterministic in-process OpenCode client used to drive the real widget
 /// tree end-to-end. The real HTTP/SSE wire behavior is covered separately by
@@ -106,10 +109,15 @@ void main() {
       ];
 
     final appState = AppState();
+    // Force Arabic UI for deterministic assertions (test platform defaults
+    // to English otherwise).
+    final settings = SettingsState(ConnectionStore())
+      ..setLang(AppLang.arabic);
 
     // With an injected state, bootstrap never runs: the app starts on the
     // splash (phase boot) until pairing is simulated below.
-    await tester.pumpWidget(OpenCodeMobileApp(appState: appState));
+    await tester.pumpWidget(OpenCodeMobileApp(
+        appState: appState, settings: settings));
     await tester.pump(const Duration(milliseconds: 10));
 
     // Simulate a completed pairing (the pairing wire flow itself is covered

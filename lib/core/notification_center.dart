@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:opencode_mobile/core/l10n.dart';
 import 'package:opencode_mobile/core/notification_watcher.dart';
 
 /// True when the notification system finished initializing successfully.
@@ -28,8 +29,9 @@ Future<void> initializeNotificationSystem() async {
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'opencode_foreground',
-        channelName: 'OpenCode خدمة الخلفية',
-        channelDescription: 'يظل متواصلًا بالسيرفر في الخلفية',
+        channelName: L.tr('OpenCode خدمة الخلفية', 'OpenCode background service'),
+        channelDescription: L.tr(
+            'يظل متواصلًا بالسيرفر في الخلفية', 'Keeps the server connection alive'),
         channelImportance: NotificationChannelImportance.LOW,
         priority: NotificationPriority.LOW,
       ),
@@ -59,10 +61,10 @@ Future<void> initializeNotificationSystem() async {
             AndroidFlutterLocalNotificationsPlugin>();
     if (androidImpl != null) {
       await androidImpl.createNotificationChannel(
-          const AndroidNotificationChannel(
+          AndroidNotificationChannel(
         'opencode_alerts',
-        'إشعارات OpenCode',
-        description: 'طلب صلاحية أو انتهاء تنفيذ',
+        L.tr('إشعارات OpenCode', 'OpenCode notifications'),
+        description: L.tr('طلب صلاحية أو انتهاء تنفيذ', 'Permission requests and finished runs'),
         importance: Importance.high,
       ));
     }
@@ -89,15 +91,20 @@ void _onDataFromWatcher(Object? data) {
       _fireAlert(
         id: (data['sessionID'] as String? ?? '').hashCode ^
             (data['action'] as String? ?? '').hashCode,
-        title: 'طلب صلاحية: ${data['action']}',
-        body: '${data['sessionTitle']} — ${data['message'] ?? ''}',
+        title: L.tr(
+          'طلب صلاحية: ${data['action'] ?? ''}',
+          'Permission request: ${data['action'] ?? ''}',
+        ),
+        body: '${data['sessionTitle'] ?? ''} — ${data['message'] ?? ''}',
       );
       break;
     case 'done':
       _fireAlert(
         id: 'done_${data['sessionID']}'.hashCode,
-        title: '${data['outcome']} في ${data['sessionTitle']}',
-        body: 'اضغط لفتح التطبيق',
+        title: (data['outcome'] as String? ?? '') +
+            L.tr(' في ', ' in ') +
+            (data['sessionTitle'] as String? ?? ''),
+        body: L.tr('اضغط لفتح التطبيق', 'Tap to open the app'),
       );
       break;
   }
@@ -110,10 +117,10 @@ Future<void> _fireAlert({
 }) async {
   // Don't interrupt the user while they're looking at the app.
   if (await FlutterForegroundTask.isAppOnForeground) return;
-  const details = NotificationDetails(
+  final details = NotificationDetails(
     android: AndroidNotificationDetails(
       'opencode_alerts',
-      'إشعارات OpenCode',
+      L.tr('إشعارات OpenCode', 'OpenCode notifications'),
       importance: Importance.high,
       priority: Priority.high,
       enableVibration: true,
@@ -135,14 +142,15 @@ Future<void> startForegroundService(String persistentText) async {
     final permission =
         await FlutterForegroundTask.requestNotificationPermission();
     if (permission != NotificationPermission.granted) {
-      throw Exception('لم يتم منح إذن الإشعارات — فعّله من إعدادات النظام');
+      throw Exception(L.tr('لم يتم منح إذن الإشعارات — فعّله من إعدادات النظام', 'Notification permission was not granted — enable it in system settings'));
     }
   } catch (e) {
     final s = '$e';
     if (s.contains('PermissionRequestCancelled') ||
         s.contains('denied') ||
+        s.toLowerCase().contains('permission') ||
         s.contains('إذن')) {
-      throw Exception('لم يتم منح إذن الإشعارات — جرّب تاني ووافق على النافذة');
+      throw Exception(L.tr('لم يتم منح إذن الإشعارات — جرّب تاني ووافق على النافذة', 'Notification permission not granted — try again and accept the dialog'));
     }
     rethrow;
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/l10n.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 /// Full-screen QR scanner that returns an `opencode pair` pairing link.
@@ -43,11 +44,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: const Text('امسح كود الـ QR'),
+        title: Text(L.tr('امسح كود الـ QR', 'Scan the QR code')),
         actions: [
           IconButton(
             icon: const Icon(Icons.flash_on),
-            tooltip: 'الفلاش',
+            tooltip: L.tr('الفلاش', 'Flash'),
             onPressed: () => _controller.toggleTorch(),
           ),
         ],
@@ -105,8 +106,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     color: Colors.black54,
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: const Text(
-                    'وجّه الكاميرا على الـ QR الظاهر في opencode pair',
+                  child: Text(
+                    L.tr('وجّه الكاميرا على الـ QR الظاهر في opencode pair', 'Point the camera at the QR shown by opencode pair'),
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

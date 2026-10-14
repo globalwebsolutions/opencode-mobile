@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../app.dart';
+import '../core/l10n.dart';
 import '../state/app_state.dart';
 import 'connect_guide_screen.dart';
 
@@ -60,7 +61,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: widget.addMode
-          ? AppBar(title: const Text('وصّل سيرفر جديد'))
+          ? AppBar(title: Text(L.tr('وصّل سيرفر جديد', 'Pair a new server')))
           : null,
       body: SafeArea(
         child: Center(
@@ -84,7 +85,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'استخدم OpenCode من موبايلك — جلساتك، رسائلك، وتحديث لحظي زي تطبيقات المحادثة.',
+                    L.tr('استخدم OpenCode من موبايلك — جلساتك، رسائلك، وتحديث لحظي زي تطبيقات المحادثة.', 'Use OpenCode from your phone — your sessions, messages, and live streaming like chat apps.'),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: scheme.onSurfaceVariant,
@@ -103,7 +104,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             }
                           },
                     icon: const Icon(Icons.qr_code_scanner),
-                    label: const Text('امسح كود الـ QR'),
+                    label: Text(L.tr('امسح كود الـ QR', 'Scan the QR code')),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
@@ -115,7 +116,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Text(
-                          'أو الصق اللينك',
+                          L.tr('أو الصق اللينك', 'or paste the link'),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: scheme.onSurfaceVariant,
                               ),
@@ -141,7 +142,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ? null
                           : IconButton(
                               icon: const Icon(Icons.paste),
-                              tooltip: 'لصق',
+                              tooltip: L.tr('لصق', 'Paste'),
                               onPressed: () async {
                                 final data = await Clipboard.getData(
                                     Clipboard.kTextPlain);
@@ -170,7 +171,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('اتصال'),
+                        : Text(L.tr('اتصال', 'Connect')),
                   ),
                   const SizedBox(height: 8),
                   TextButton.icon(
@@ -180,7 +181,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     icon:
                         const Icon(Icons.help_outline_rounded, size: 18),
-                    label: const Text('مش عارف توصل؟ شوف دليل التوصيل'),
+                    label: Text(L.tr('مش عارف توصل؟ شوف دليل التوصيل', 'Trouble connecting? Open the guide')),
                   ),
                   if (app.error != null) ...[
                     const SizedBox(height: 16),
@@ -188,8 +189,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ],
                   const SizedBox(height: 32),
                   Text(
-                    'مشروع مجتمعي غير رسمي — مش مبني من فريق OpenCode '
-                    'ومنتابعش لأوبن كود بأي شكل. OpenCode نفسه مفتوح المصدر.',
+                    L.tr(
+                        'مشروع مجتمعي غير رسمي — مش مبني من فريق OpenCode ومنتابعش لأوبن كود بأي شكل. OpenCode نفسه مفتوح المصدر.',
+                        'Unofficial community project — not built by the OpenCode team and not affiliated with OpenCode in any way. OpenCode itself is open source.'),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
@@ -222,7 +224,7 @@ class _StepsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'خطوات التوصيل (مرة واحدة بس):',
+            L.tr('خطوات التوصيل (مرة واحدة بس):', 'Setup steps (one-time only):'),
             style: Theme.of(context)
                 .textTheme
                 .titleSmall
@@ -232,21 +234,21 @@ class _StepsCard extends StatelessWidget {
           _Step(
             number: '1',
             scheme: scheme,
-            title: 'على الكمبيوتر، خلّي السيرفر يسمح بالاتصال:',
+            title: L.tr('على الكمبيوتر، خلّي السيرفر يسمح بالاتصال:', 'On your computer, allow LAN connections:'),
             code: 'opencode service set hostname 0.0.0.0',
           ),
           const SizedBox(height: 10),
           _Step(
             number: '2',
             scheme: scheme,
-            title: 'اطلب لينك pairing جديد (بيطلع معاه QR):',
-            code: 'opencode pair --url http://<IP-الكمبيوتر>:<PORT>',
+            title: L.tr('اطلب لينك pairing جديد (بيطلع معاه QR):', 'Request a pairing link (shows a QR):'),
+            code: L.tr('opencode pair --url http://<IP-الكمبيوتر>:<PORT>', 'opencode pair --url http://<IP>:<PORT>'),
           ),
           const SizedBox(height: 10),
           _Step(
             number: '3',
             scheme: scheme,
-            title: 'امسح الـ QR من هنا — وخلاص، إنت داخل! 🎉',
+            title: L.tr('امسح الـ QR من هنا — وخلاص، إنت داخل! 🎉', 'Scan the QR here — and you are in! 🎉'),
           ),
         ],
       ),
@@ -345,7 +347,7 @@ class _ErrorCard extends StatelessWidget {
               Icon(Icons.error_outline, color: scheme.error, size: 20),
               const SizedBox(width: 8),
               Text(
-                'فشل الاتصال',
+                L.tr('فشل الاتصال', 'Connection failed'),
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -358,9 +360,9 @@ class _ErrorCard extends StatelessWidget {
           if (localhostHint) ...[
             const SizedBox(height: 8),
             Text(
-              '💡 اللينك بيشاور على 127.0.0.1 — من جهاز الموبايل ده مش بيوصل للكمبيوتر. '
-              'اطلب لينك جديد بعنوان الكمبيوتر على الشبكة: '
-              'opencode pair --url http://<IP-الكمبيوتر>:<PORT>',
+              L.tr(
+                      '💡 اللينك بيشاور على 127.0.0.1 — من جهاز الموبايل ده مش بيوصل للكمبيوتر. اطلب لينك جديد بعنوان الكمبيوتر على الشبكة: opencode pair --url http://<IP>:<PORT>',
+                      'The link points at 127.0.0.1 — from a phone that never reaches your computer. Request a link with the computer LAN address: opencode pair --url http://<IP>:<PORT>'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],

@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import '../core/models.dart';
+import '../core/l10n.dart';
 import '../core/opencode_client.dart';
 import 'app_state.dart';
 
@@ -271,7 +272,7 @@ class ChatState extends ChangeNotifier {
         _stopPermissionPolling();
         if (e.type == 'session.execution.failed') {
           final err = e.data['error'];
-          error = err is Map ? '${err['message']}' : 'فشل التنفيذ';
+          error = err is Map ? '${err['message']}' : L.tr('فشل التنفيذ', 'Execution failed');
         }
         // Reconcile with the server's view of the finished messages.
         unawaited(load());
@@ -475,8 +476,8 @@ class ChatState extends ChangeNotifier {
     if (status == 'error') {
       final err = e.data['error'];
       toolError = err is Map
-          ? '${err['message'] ?? err['type'] ?? 'فشلت الأداة'}'
-          : 'فشلت الأداة';
+          ? '${err['message'] ?? err['type'] ?? L.tr('فشلت الأداة', 'Tool failed')}'
+          : L.tr('فشلت الأداة', 'Tool failed');
     }
     Map<String, dynamic>? metadata;
     if (e.data['metadata'] is Map) {

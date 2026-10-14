@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../core/models.dart';
+import '../core/l10n.dart';
 import '../core/connection_store.dart';
 import '../core/notification_center.dart';
 import '../core/opencode_client.dart';
@@ -110,21 +111,27 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Language name (AppLang.name) captured when notifications are enabled,
+  /// forwarded to the background watcher for its own isolate.
+  String notificationLang = 'arabic';
+
   /// Enables the background watcher so the user gets notifications for
   /// permission requests and execution outcomes on the active server.
   /// Returns true on success.
-  Future<bool> enableNotifications() async {
+  Future<bool> enableNotifications({String lang = 'arabic'}) async {
     final c = activeConnection;
     if (c == null) return false;
+    notificationLang = lang;
     try {
       await WatcherConfig.write(
         WatcherConfig(
           baseUrl: c.baseUrl,
           token: c.token,
           serverName: c.label,
+          lang: notificationLang,
         ),
       );
-      await startForegroundService('${c.label} — متواصل');
+      await startForegroundService(L.tr('${c.label} — متواصل', '${c.label} — connected'));
       error = null;
       notifyListeners();
       return true;
@@ -270,19 +277,19 @@ class AppState extends ChangeNotifier {
   String friendlyErrorText(Object e) {
     if (e is OpenCodeApiException) {
       if (e.unauthorized) {
-        return 'الـ token مش صالح — اعمل pairing جديد من على الكمبيوتر';
+        return L.tr('الـ token مش صالح — اعمل pairing جديد من على الكمبيوتر', 'Token no longer valid — pair again from your computer');
       }
-      return 'خطأ من السيرفر (${e.statusCode}): ${e.message}';
+      return L.tr('خطأ من السيرفر (${e.statusCode}): ${e.message}', 'Server error (${e.statusCode}): ${e.message}');
     }
     if (e is FormatException) return e.message;
     if (e is TimeoutException) {
-      return 'السيرفر مش بيرد — تأكد إن الجهازين على نفس الشبكة و OpenCode شغال';
+      return L.tr('السيرفر مش بيرد — تأكد إن الجهازين على نفس الشبكة و OpenCode شغال', 'Server is not responding — make sure both devices share the network and OpenCode is running');
     }
     if (e is SocketException) {
-      return 'تعذر الوصول للسيرفر — تأكد إن الجهازين على نفس الشبكة و OpenCode شغال '
-          'وإن hostname مضبوط (opencode service set hostname 0.0.0.0)';
+      return L.tr('تعذر الوصول للسيرفر — تأكد إن الجهازين على نفس الشبكة و OpenCode شغال ', 'Cannot reach the server — make sure both devices share the network and OpenCode is running ') +
+          L.tr('وإن hostname مضبوط (opencode service set hostname 0.0.0.0)', 'and LAN listening is enabled (opencode service set hostname 0.0.0.0)');
     }
-    return 'تعذر الاتصال: $e';
+    return L.tr('تعذر الاتصال: $e', 'Connection failed: $e');
   }
 
   @override

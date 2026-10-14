@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/models.dart';
+import '../core/l10n.dart';
 import '../state/app_state.dart';
 import '../state/sessions_state.dart';
 import '../widgets/session_tile.dart';
@@ -19,11 +20,11 @@ class ProjectsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('المشاريع والمحادثات'),
+        title: Text(L.tr('المشاريع والمحادثات', 'Projects & chats')),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'تحديث',
+            tooltip: L.tr('تحديث', 'Refresh'),
             onPressed: () => sessions.refresh(),
           ),
         ],
@@ -42,7 +43,7 @@ class ProjectsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _SectionHeader(
-                        title: 'مشاريعك', count: projects.length),
+                        title: L.tr('مشاريعك', 'Your projects'), count: projects.length),
                     for (final project in projects)
                       _ProjectRow(
                         project: project,
@@ -56,9 +57,9 @@ class ProjectsScreen extends StatelessWidget {
             ),
             // Full history.
             _SectionHeader(
-                title: 'كل المحادثات', count: sessions.sessions.length),
+                title: L.tr('كل المحادثات', 'All chats'), count: sessions.sessions.length),
             if (sessions.loading && sessions.sessions.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(32),
                 child: Center(child: CircularProgressIndicator()),
               )
@@ -67,7 +68,7 @@ class ProjectsScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(32),
                 child: Center(
                   child: Text(
-                    'مفيش محادثات بعد',
+                    L.tr('مفيش محادثات بعد', 'No conversations yet'),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -149,13 +150,13 @@ class ProjectsScreen extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.drive_file_rename_outline),
-                title: const Text('إعادة تسمية'),
+                title: Text(L.tr('إعادة تسمية', 'Rename')),
                 onTap: () async {
                   Navigator.pop(sheetContext);
                   final title = await showDialog<String>(
                     context: context,
                     builder: (dialogContext) => AlertDialog(
-                      title: const Text('اسم الجلسة'),
+                      title: Text(L.tr('اسم الجلسة', 'Session name')),
                       content: TextField(
                         controller: controller,
                         autofocus: true,
@@ -165,12 +166,12 @@ class ProjectsScreen extends StatelessWidget {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(dialogContext),
-                          child: const Text('إلغاء'),
+                          child: Text(L.tr('إلغاء', 'Cancel')),
                         ),
                         FilledButton(
                           onPressed: () =>
                               Navigator.pop(dialogContext, controller.text),
-                          child: const Text('حفظ'),
+                          child: Text(L.tr('حفظ', 'Save')),
                         ),
                       ],
                     ),
@@ -182,7 +183,7 @@ class ProjectsScreen extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.delete_outline),
-                title: const Text('حذف الجلسة'),
+                title: Text(L.tr('حذف الجلسة', 'Delete chat')),
                 textColor: Theme.of(context).colorScheme.error,
                 iconColor: Theme.of(context).colorScheme.error,
                 onTap: () {
@@ -263,7 +264,7 @@ class _ProjectRow extends StatelessWidget {
             ?.copyWith(fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
-        '${project.canonical}  ·  ${sessions.length} محادثة',
+        L.tr('${project.canonical}  ·  ${sessions.length} محادثة', '${project.canonical}  ·  ${sessions.length} chats'),
         textDirection: TextDirection.ltr,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -272,7 +273,7 @@ class _ProjectRow extends StatelessWidget {
       ),
       trailing: IconButton(
         icon: const Icon(Icons.add_comment_outlined),
-        tooltip: 'محادثة جديدة هنا',
+        tooltip: L.tr('محادثة جديدة هنا', 'New chat here'),
         onPressed: onNewChat,
       ),
       onTap: () => _showProjectSessions(context),
@@ -298,7 +299,7 @@ class _ProjectRow extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      'محادثات ${project.name}',
+                      L.tr('محادثات ${project.name}', 'Chats in ${project.name}'),
                       style: theme.textTheme.titleMedium
                           ?.copyWith(fontWeight: FontWeight.w700),
                     ),
@@ -306,9 +307,9 @@ class _ProjectRow extends StatelessWidget {
                 ),
               ),
               if (sessions.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(24),
-                  child: Text('مفيش محادثات في المشروع ده بعد'),
+                  child: Text(L.tr('مفيش محادثات في المشروع ده بعد', 'No chats in this project yet')),
                 )
               else
                 Flexible(
@@ -323,7 +324,7 @@ class _ProjectRow extends StatelessWidget {
                           title: Text(
                             s.title?.trim().isNotEmpty == true
                                 ? s.title!
-                                : 'بدون عنوان',
+                                : L.tr('بدون عنوان', 'Untitled'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -388,7 +389,7 @@ class _FutureProjectsState extends State<_FutureProjects> {
   @override
   Widget build(BuildContext context) {
     if (_projects == null) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.all(16),
         child: Center(
           child: SizedBox(

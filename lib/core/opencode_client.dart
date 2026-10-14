@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import 'l10n.dart';
 import 'models.dart';
 
 /// Thrown for non-2xx API responses.
@@ -14,7 +15,7 @@ class OpenCodeApiException implements Exception {
   final int statusCode;
   final String message;
 
-  const OpenCodeApiException(this.statusCode, this.message);
+  OpenCodeApiException(this.statusCode, this.message);
 
   bool get unauthorized => statusCode == 401;
 
@@ -62,11 +63,11 @@ class OpenCodeClient {
   static String baseUrlFromLink(String link) {
     final uri = Uri.parse(link.trim());
     if (!uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
-      throw const FormatException('اللينك لازم يبدأ بـ http:// أو https://');
+      throw FormatException(L.tr('اللينك لازم يبدأ بـ http:// أو https://', 'Link must start with http:// or https://'));
     }
     if (!uri.path.startsWith('/auth/connect/')) {
-      throw const FormatException(
-          'ده مش لينك pairing صحيح — لازم يحتوي /auth/connect/');
+      throw FormatException(
+          L.tr('ده مش لينك pairing صحيح — لازم يحتوي /auth/connect/', 'Invalid pairing link — expected /auth/connect/'));
     }
     return '${uri.scheme}://${uri.host}:${uri.port}';
   }
@@ -76,24 +77,24 @@ class OpenCodeClient {
   static Future<String> redeemPairingLink(String link) async {
     final uri = Uri.parse(link.trim());
     if (!uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
-      throw const FormatException('اللينك لازم يبدأ بـ http:// أو https://');
+      throw FormatException(L.tr('اللينك لازم يبدأ بـ http:// أو https://', 'Link must start with http:// or https://'));
     }
     if (!uri.path.startsWith('/auth/connect/')) {
-      throw const FormatException(
-          'ده مش لينك pairing صحيح — لازم يحتوي /auth/connect/');
+      throw FormatException(
+          L.tr('ده مش لينك pairing صحيح — لازم يحتوي /auth/connect/', 'Invalid pairing link — expected /auth/connect/'));
     }
     final client = http.Client();
     try {
       final res = await client.get(uri).timeout(const Duration(seconds: 15));
       if (res.statusCode != 200) {
         throw OpenCodeApiException(
-            res.statusCode, _errorMessage(res) ?? 'فشل الاتصال بالسيرفر');
+            res.statusCode, _errorMessage(res) ?? L.tr('فشل الاتصال بالسيرفر', 'Failed to reach the server'));
       }
       final body = jsonDecode(utf8.decode(res.bodyBytes));
       if (body is Map && body['token'] is String) {
         return body['token'] as String;
       }
-      throw FormatException('رد غير متوقع من السيرفر: $body');
+      throw FormatException(L.tr('رد غير متوقع من السيرفر: $body', 'Unexpected server response: $body'));
     } finally {
       client.close();
     }
@@ -120,7 +121,7 @@ class OpenCodeClient {
         .timeout(const Duration(seconds: 30));
     if (res.statusCode != 200) {
       throw OpenCodeApiException(
-          res.statusCode, _errorMessage(res) ?? res.reasonPhrase ?? 'خطأ');
+          res.statusCode, _errorMessage(res) ?? res.reasonPhrase ?? L.tr('خطأ', 'Error'));
     }
     return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
   }
@@ -136,7 +137,7 @@ class OpenCodeClient {
         await http.Response.fromStream(streamed).timeout(const Duration(seconds: 60));
     if (res.statusCode >= 400) {
       throw OpenCodeApiException(
-          res.statusCode, _errorMessage(res) ?? res.reasonPhrase ?? 'خطأ');
+          res.statusCode, _errorMessage(res) ?? res.reasonPhrase ?? L.tr('خطأ', 'Error'));
     }
     if (res.body.isEmpty) return {};
     final decoded = jsonDecode(utf8.decode(res.bodyBytes));
@@ -182,7 +183,7 @@ class OpenCodeClient {
     if (data is Map) {
       return OcSession.fromJson(Map<String, dynamic>.from(data));
     }
-    throw const OpenCodeApiException(500, 'فشل إنشاء الجلسة');
+    throw OpenCodeApiException(500, L.tr('فشل إنشاء الجلسة', 'Failed to create session'));
   }
 
   Future<void> renameSession(String sessionID, String title) async =>
@@ -204,7 +205,7 @@ class OpenCodeClient {
         .timeout(const Duration(seconds: 30));
     if (res.statusCode != 200) {
       throw OpenCodeApiException(
-          res.statusCode, _errorMessage(res) ?? 'فشل تحميل المشاريع');
+          res.statusCode, _errorMessage(res) ?? L.tr('فشل تحميل المشاريع', 'Failed to load projects'));
     }
     final data = jsonDecode(utf8.decode(res.bodyBytes));
     if (data is! List) return const [];
@@ -299,7 +300,7 @@ class OpenCodeClient {
 
         if (response.statusCode != 200) {
           throw OpenCodeApiException(response.statusCode,
-              'فشل فتح قناة الأحداث (HTTP ${response.statusCode})');
+              L.tr('فشل فتح قناة الأحداث (HTTP ${response.statusCode})', 'Failed to open event stream (HTTP ${response.statusCode})'));
         }
         onStatus?.call(SseStatus.connected);
         backoff = const Duration(seconds: 1);
@@ -332,7 +333,7 @@ class OpenCodeClient {
           onDone: () {
             if (!events.isClosed) {
               events.addError(
-                  const OpenCodeApiException(503, 'انقطعت قناة الأحداث'));
+                  OpenCodeApiException(503, L.tr('انقطعت قناة الأحداث', 'Event stream closed')));
               events.close();
             }
           },

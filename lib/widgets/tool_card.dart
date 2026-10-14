@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/models.dart';
+import '../core/l10n.dart';
 
 /// A tool call card: name, status, expandable input and output.
 class ToolCard extends StatelessWidget {
@@ -36,13 +37,13 @@ class ToolCard extends StatelessWidget {
   String get _statusLabel {
     switch (part.toolStatus) {
       case 'running':
-        return 'بيشتغل...';
+        return L.tr('بيشتغل...', 'running...');
       case 'completed':
-        return 'خلص';
+        return L.tr('خلص', 'done');
       case 'error':
-        return 'فشل';
+        return L.tr('فشل', 'failed');
       default:
-        return 'معلق';
+        return L.tr('معلق', 'pending');
     }
   }
 
@@ -135,7 +136,7 @@ class ToolCard extends StatelessWidget {
                 ),
                 subtitle: Text(
                   failed
-                      ? (part.toolError ?? 'فشل')
+                      ? (part.toolError ?? L.tr('فشل', 'failed'))
                       : _statusLabel,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -148,13 +149,13 @@ class ToolCard extends StatelessWidget {
                 children: [
                   if ((part.toolInput ?? '').isNotEmpty)
                     _CodeBlock(
-                      label: 'الإدخال',
+                      label: L.tr('الإدخال', 'Input'),
                       content: part.toolInput!,
                       scheme: scheme,
                     ),
                   if ((part.toolOutput ?? '').isNotEmpty)
                     _CodeBlock(
-                      label: 'النتيجة',
+                      label: L.tr('النتيجة', 'Output'),
                       content: part.toolOutput!,
                       scheme: scheme,
                     ),

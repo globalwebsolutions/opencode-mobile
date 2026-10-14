@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app.dart';
+import '../core/l10n.dart';
 import '../core/models.dart';
 
 /// One conversation row in the sessions list.
@@ -24,7 +25,7 @@ class SessionTile extends StatelessWidget {
     final theme = Theme.of(context);
     final title = session.title?.trim().isNotEmpty == true
         ? session.title!
-        : 'جلسة بدون عنوان';
+        : L.tr('جلسة بدون عنوان', 'Untitled session');
     final dir = _shortDir(session.directory);
 
     return ListTile(
@@ -78,7 +79,7 @@ class SessionTile extends StatelessWidget {
             const SizedBox(width: 8),
           ],
           Text(
-            relativeTimeAr(session.updatedMs ?? session.createdMs),
+            relativeTime(session.updatedMs ?? session.createdMs),
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: scheme.onSurfaceVariant),
           ),
@@ -110,8 +111,8 @@ class SessionTile extends StatelessWidget {
                 color: Colors.green.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Text(
-                'شغال',
+              child: Text(
+                L.tr('شغال', 'busy'),
                 style: TextStyle(
                   fontSize: 11,
                   color: Colors.green,

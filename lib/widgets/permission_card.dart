@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/models.dart';
+import '../core/l10n.dart';
 
 /// Inline card for a pending permission request with
 /// allow-once / allow-always / reject actions.
@@ -35,7 +36,7 @@ class PermissionCard extends StatelessWidget {
                   size: 20, color: scheme.tertiary),
               const SizedBox(width: 8),
               Text(
-                'طلب صلاحية',
+                L.tr('طلب صلاحية', 'Permission request'),
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -45,8 +46,8 @@ class PermissionCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             request.message ??
-                'الموديل عايز ينفذ "${request.actionLabel}" — '
-                'محتاج موافقتك.',
+                L.tr('الموديل عايز ينفذ "${request.actionLabel}" — ', 'The agent wants to run "${request.actionLabel}" — ') +
+                    L.tr('محتاج موافقتك.', 'needs your approval.'),
             style: theme.textTheme.bodyMedium,
           ),
           if (request.resources.isNotEmpty) ...[
@@ -88,14 +89,14 @@ class PermissionCard extends StatelessWidget {
               Expanded(
                 child: FilledButton(
                   onPressed: () => onReply('once'),
-                  child: const Text('سماح مرة'),
+                  child: Text(L.tr('سماح مرة', 'Allow once')),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: FilledButton.tonal(
                   onPressed: () => onReply('always'),
-                  child: const Text('سماح دايمًا'),
+                  child: Text(L.tr('سماح دايمًا', 'Always allow')),
                 ),
               ),
               const SizedBox(width: 8),
@@ -106,7 +107,7 @@ class PermissionCard extends StatelessWidget {
                     foregroundColor: scheme.error,
                     side: BorderSide(color: scheme.error.withValues(alpha: 0.6)),
                   ),
-                  child: const Text('رفض'),
+                  child: Text(L.tr('رفض', 'Deny')),
                 ),
               ),
             ],

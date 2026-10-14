@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../core/models.dart';
+import '../core/l10n.dart';
 import '../core/opencode_client.dart';
 import 'app_state.dart';
 
@@ -55,7 +56,7 @@ class SessionsState extends ChangeNotifier {
 
   Future<OcSession> createSession({required String directory, String? title}) async {
     final client = _client;
-    if (client == null) throw StateError('غير متصل');
+    if (client == null) throw StateError(L.tr('غير متصل', 'not connected'));
     final session = await client.createSession(directory: directory, title: title);
     await refresh(silent: true);
     return session;

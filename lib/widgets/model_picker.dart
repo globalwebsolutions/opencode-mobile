@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/models.dart';
+import '../core/l10n.dart';
 import '../state/chat_state.dart';
 
 /// Opens the model picker sheet for [chat]; switches the session model on
@@ -105,14 +106,14 @@ class _ModelPickerSheetState extends State<_ModelPickerSheet> {
               child: Row(
                 children: [
                   Text(
-                    'اختيار الموديل',
+                    L.tr('اختيار الموديل', 'Choose model'),
                     style: theme.textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                   const Spacer(),
                   if (!(chat.loadingModels && chat.models.isEmpty))
                     Text(
-                      '${models.length} من ${chat.models.length}',
+                      L.tr('${models.length} من ${chat.models.length}', '${models.length} of ${chat.models.length}'),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -128,7 +129,7 @@ class _ModelPickerSheetState extends State<_ModelPickerSheet> {
                   controller: _search,
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
-                    hintText: 'دوّر على موديل...',
+                    hintText: L.tr('دوّر على موديل...', 'Search models...'),
                     prefixIcon: const Icon(Icons.search, size: 20),
                     suffixIcon: _search.text.isEmpty
                         ? null
@@ -161,15 +162,15 @@ class _ModelPickerSheetState extends State<_ModelPickerSheet> {
                       height: 160,
                       child: Center(
                         child: Text(
-                          chat.error ?? 'مفيش موديلات متاحة على السيرفر ده',
+                          chat.error ?? L.tr('مفيش موديلات متاحة على السيرفر ده', 'No models available on this server'),
                         ),
                       ),
                     );
                   }
                   if (models.isEmpty) {
-                    return const SizedBox(
+                    return SizedBox(
                       height: 140,
-                      child: Center(child: Text('مفيش نتائج للبحث 🤷')),
+                      child: Center(child: Text(L.tr('مفيش نتائج للبحث 🤷', 'No results'))),
                     );
                   }
                   return ListView(
@@ -251,7 +252,7 @@ class _ModelTile extends StatelessWidget {
           if (isCurrent) ...[
             const SizedBox(width: 8),
             Text(
-              'الحالي',
+              L.tr('الحالي', 'current'),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: scheme.primary,
                 fontWeight: FontWeight.w700,

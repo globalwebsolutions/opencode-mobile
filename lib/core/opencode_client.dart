@@ -192,9 +192,17 @@ class OpenCodeClient {
   Future<void> deleteSession(String sessionID) async =>
       _sendJson('DELETE', '/api/session/$sessionID', null);
 
-  /// Sends a user message to the session.
-  Future<void> prompt(String sessionID, String text) async =>
-      _sendJson('POST', '/api/session/$sessionID/prompt', {'text': text});
+  /// Sends a user message (optionally with image/file attachments).
+  Future<void> prompt(
+    String sessionID,
+    String text, {
+    List<Map<String, dynamic>> files = const [],
+  }) async {
+    await _sendJson('POST', '/api/session/$sessionID/prompt', {
+      'text': text,
+      if (files.isNotEmpty) 'files': files,
+    });
+  }
 
   Future<void> interrupt(String sessionID) async =>
       _sendJson('POST', '/api/session/$sessionID/interrupt', null);

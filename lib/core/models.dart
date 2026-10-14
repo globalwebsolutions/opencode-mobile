@@ -240,11 +240,48 @@ class OcPart {
       );
 }
 
+/// One image/file attached to a user message.
+class OcAttachment {
+  final String dataBase64;
+  final String mime;
+  final String? name;
+
+  const OcAttachment({
+    required this.dataBase64,
+    required this.mime,
+    this.name,
+  });
+
+  bool get isImage => mime.startsWith('image/');
+
+  /// `data:<mime>;base64,<data>` — what the prompt API expects.
+  String get dataUri => 'data:$mime;base64,$dataBase64';
+
+  Map<String, dynamic> toPromptFile() => {
+        'uri': dataUri,
+        if (name != null && name!.isNotEmpty) 'name': name,
+      };
+
+  /// Parses the history shape `{data, mime, source, name}`. Returns null when
+  /// the file has no inline bytes (e.g. a server-side path reference).
+  static OcAttachment? fromJson(Map<String, dynamic> json) {
+    final data = json['data'] as String?;
+    final mime = json['mime'] as String?;
+    if (data == null || data.isEmpty || mime == null) return null;
+    return OcAttachment(
+      dataBase64: data,
+      mime: mime,
+      name: json['name'] as String?,
+    );
+  }
+}
+
 class OcMessage {
   final String id;
   final String type; // 'user' | 'assistant' | ...
   final String? text; // user message body
   final List<OcPart> content;
+  final List<OcAttachment> files;
   final String? agent;
   final ModelRef? model;
   final String? finish;
@@ -258,6 +295,7 @@ class OcMessage {
     required this.type,
     this.text,
     this.content = const [],
+    this.files = const [],
     this.agent,
     this.model,
     this.finish,
@@ -277,11 +315,22 @@ class OcMessage {
         }
       }
     }
+    final files = <OcAttachment>[];
+    if (json['files'] is List) {
+      for (final f in json['files'] as List) {
+        if (f is Map) {
+          final att =
+              OcAttachment.fromJson(Map<String, dynamic>.from(f));
+          if (att != null) files.add(att);
+        }
+      }
+    }
     return OcMessage(
       id: json['id'] as String? ?? '',
       type: json['type'] as String? ?? '',
       text: json['text'] as String?,
       content: content,
+      files: files,
       agent: json['agent'] as String?,
       model: json['model'] is Map
           ? ModelRef.fromJson(Map<String, dynamic>.from(json['model'] as Map))
@@ -309,6 +358,7 @@ class OcMessage {
         type: type,
         text: text,
         content: content ?? this.content,
+        files: files,
         agent: agent ?? this.agent,
         model: model ?? this.model,
         finish: finish ?? this.finish,

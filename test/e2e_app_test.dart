@@ -38,13 +38,15 @@ class FakeOpenCodeClient extends OpenCodeClient {
       List.of(messages);
 
   @override
-  Future<void> prompt(String sessionID, String text) async {
+  Future<void> prompt(String sessionID, String text,
+      {List<Map<String, dynamic>> files = const []}) async {
     prompts.add(text);
     // A real server persists the user message and, after execution ends,
     // the assistant reply; the reconciled history reflects both.
     messages = [
       ...messages,
-      OcMessage(id: 'msg_u_$text', type: 'user', text: text),
+      OcMessage(
+          id: 'msg_u_$text', type: 'user', text: text),
       OcMessage(
         id: 'msg_live1',
         type: 'assistant',

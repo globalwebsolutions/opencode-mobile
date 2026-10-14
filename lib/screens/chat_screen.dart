@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../core/models.dart';
@@ -45,6 +48,10 @@ class _ChatViewState extends State<_ChatView> {
   final _scrollController = ScrollController();
   bool _autoScroll = true;
 
+  // Pending image attachments for the next message.
+  final ImagePicker _picker = ImagePicker();
+  final List<OcAttachment> _attachments = [];
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +73,75 @@ class _ChatViewState extends State<_ChatView> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  /// Bottom sheet offering camera or gallery.
+  Future<void> _pickImage() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(L.tr('كاميرا', 'Camera')),
+              onTap: () =>
+                  Navigator.pop(sheetContext, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(L.tr('من الاستوديو', 'From gallery')),
+              onTap: () =>
+                  Navigator.pop(sheetContext, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+    try {
+      // Downscale + compress so the base64 payload stays reasonable.
+      final file = await _picker.pickImage(
+        source: source,
+        maxWidth: 1280,
+        maxHeight: 1280,
+        imageQuality: 82,
+      );
+      if (file == null || !mounted) return;
+      final bytes = await file.readAsBytes();
+      if (!mounted) return;
+      final mime = (file.mimeType ??
+              (file.name.toLowerCase().endsWith('.png')
+                  ? 'image/png'
+                  : 'image/jpeg'));
+      setState(() {
+        _attachments.add(OcAttachment(
+          dataBase64: base64Encode(bytes),
+          mime: mime,
+          name: file.name,
+        ));
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(L.tr('فشل اختيار الصورة: $e',
+                'Could not pick image: $e')),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _send(String text) async {
+    final chat = context.read<ChatState>();
+    if (text.trim().isEmpty && _attachments.isEmpty) return;
+    final attachments = List<OcAttachment>.of(_attachments);
+    setState(() => _attachments.clear());
+    await chat.send(text, attachments: attachments);
   }
 
   void _jumpToBottom({bool animated = true}) {
@@ -175,8 +251,12 @@ class _ChatViewState extends State<_ChatView> {
             ),
           ChatInputBar(
             busy: chat.busy,
-            onSend: chat.send,
+            onSend: _send,
             onInterrupt: chat.interrupt,
+            onAttach: _pickImage,
+            attachments: _attachments,
+            onRemoveAttachment: (index) =>
+                setState(() => _attachments.removeAt(index)),
           ),
         ],
       ),

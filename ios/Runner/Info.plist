@@ -29,6 +29,9 @@
 	<!-- Camera is used to scan the `opencode pair` QR code. -->
 	<key>NSCameraUsageDescription</key>
 	<string>يستخدم الكاميرا لمسح كود الـ QR الخاص بتوصيل OpenCode</string>
+	<!-- Image attachments for chat messages. -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>يستخدم الصور الملتقطة لإرفاقها برسائلك في OpenCode</string>
 	<!-- OpenCode servers run plain HTTP on the local network. -->
 	<key>NSAppTransportSecurity</key>
 	<dict>

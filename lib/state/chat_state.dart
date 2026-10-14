@@ -68,10 +68,16 @@ class ChatState extends ChangeNotifier {
   }
 
   /// Sends a user message; the assistant reply arrives via live events.
-  Future<void> send(String text) async {
+  Future<void> send(String text,
+      {List<OcAttachment> attachments = const []}) async {
     final client = _client;
     final trimmed = text.trim();
-    if (client == null || trimmed.isEmpty || busy) return;
+    if (client == null ||
+        (trimmed.isEmpty && attachments.isEmpty) ||
+        busy ||
+        sending) {
+      return;
+    }
     sending = true;
     busy = true;
     notifyListeners();
@@ -81,12 +87,17 @@ class ChatState extends ChangeNotifier {
         id: 'local_user_${DateTime.now().millisecondsSinceEpoch}',
         type: 'user',
         text: trimmed,
+        files: attachments,
         createdMs: DateTime.now().millisecondsSinceEpoch,
       ),
     ];
     notifyListeners();
     try {
-      await client.prompt(sessionID, trimmed);
+      await client.prompt(
+        sessionID,
+        trimmed,
+        files: [for (final a in attachments) a.toPromptFile()],
+      );
     } catch (e) {
       busy = false;
       error = '$e';

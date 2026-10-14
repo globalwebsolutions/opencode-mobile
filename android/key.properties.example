@@ -1,0 +1,14 @@
+# Upload keystore for Google Play. Copy this file to `android/key.properties`
+# and fill in your own values — then generate the keystore with:
+#
+#   keytool -genkey -v -keystore ~/opencode-upload.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# The keystore + this file must NEVER be committed (they are git-ignored).
+# Keep a backup of the .jks: losing it means you cannot update the app —
+# unless you use Play App Signing, where Google holds the real signing key.
+
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=upload
+storeFile=/Users/you/opencode-upload.jks

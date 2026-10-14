@@ -8,7 +8,7 @@
 PRODUCT_NAME = opencode_mobile
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = dev.opencodemobile.app.opencodeMobile
+PRODUCT_BUNDLE_IDENTIFIER = com.gws.opencode
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 dev.opencodemobile.app. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 Global Web Solutions. All rights reserved.

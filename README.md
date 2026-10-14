@@ -1,204 +1,222 @@
-# OpenCode Mobile 📱
+# OpenCode Mobile
 
-تطبيق موبايل غير رسمي لاستخدام **[OpenCode](https://opencode.ai)** من على تليفونك —
-واجهة دردشة زي تطبيقات Claude و ChatGPT بالظبط: بتفتح بحسابك (pairing بالـ QR)،
-ب تشوف محادثاتك (sessions)، وبتشوف الردود **تتولد لحظيًا** وهي بتكتب، مع كروت الأدوات
-وأزرار الموافقة على الصلاحيات.
+**An unofficial mobile client for [OpenCode](https://opencode.ai)** — chat with the coding
+agent running on your own computer, from your phone.
+
+Pair once with a QR code, then follow your sessions live: replies stream in word by word,
+reasoning folds away, every tool call shows up as a card, and permission requests are
+approved right from your pocket.
 
 > [!NOTE]
-> هذا مشروع مجتمعي **غير رسمي**: لم يبنَ من فريق OpenCode ولا يتبع OpenCode بأي شكل.
-> OpenCode نفسه مشروع مفتوح المصدر (MIT) متاح على
+> This is an **unofficial, community-built** client. It is **not** built by, endorsed by, or
+> affiliated with the OpenCode team. OpenCode itself is open source (MIT) at
 > [github.com/anomalyco/opencode](https://github.com/anomalyco/opencode).
-> This is an unofficial, community-built client. It is **not** built by, endorsed by, or
-> affiliated with the OpenCode team.
+
+<p align="center">
+  <img src="store/play_icon_512.png" width="96" alt="OpenCode Mobile icon">
+</p>
 
 ---
 
-## إزاي بيشتغل؟ (المعمارية)
+## How it works
 
 ```
-┌──────────────┐    QR pairing (مرة واحدة)    ┌─────────────────────┐
-│  الموبايل     │ ─────────────────────────► │   الماك / الكمبيوتر  │
-│  هذا التطبيق  │                             │  OpenCode (سيرفر)    │
-│  Flutter      │ ◄────── SSE (لحظي) ──────── │  sessions + models  │
-└──────────────┘  HTTP API (رسائل/أوامر)      └─────────────────────┘
+┌──────────────┐     QR pairing (one time)     ┌─────────────────────┐
+│    Phone     │ ────────────────────────────► │  Your computer      │
+│  this app    │                               │  OpenCode (server)  │
+│   Flutter    │ ◄──────── SSE (live) ──────── │  sessions + models  │
+└──────────────┘   HTTP API (prompts/actions)  └─────────────────────┘
 ```
 
-- OpenCode V2 بيشتغل بمعمارية **client-server**: سيرفر خلفي بيمتلك الـ sessions
-  والرسائل والصلاحيات، وبيعرض **HTTP API** (142 endpoint) + **SSE** للأحداث اللحظية.
-- التطبيق ده عميل ليه: بيسجل دخول مرة واحدة عن طريق **pairing** بالـ QR
-  (زي ما بتعمل sign in بالحساب)، وبعدها كل حاجة لحظية زي تطبيقات الدردشة.
-- التطبيق مش بيشغل موديلات على الموبايل — بيوصّلك للـ models والمشاريع اللي على
-  جهازك، فبتاخد نفس قوة الوكيل بتاعك في التليفون.
+OpenCode V2 is client–server: a background server owns the sessions, messages and
+permissions, and exposes an **HTTP API** plus an **SSE** stream for live events.
+This app is a client for it. It does **not** run models on the phone — it drives the
+server on your machine, so you get the full power of your own agent in your hand.
 
-## المميزات
+## Features
 
-###  الميزات الأساسية
-- ✅ **Pairing بالـ QR** — امسح كود `opencode pair` وخلاص
-- ✅ **قائمة المحادثات** — كل الـ sessions بتاعتك بالعناوين والتكلفة والموديل
-- ✅ **Streaming لحظي** — النص بيظهر كلمة كلمة، والتفكير (reasoning) قابل للطي
-- ✅ **كروت الأدوات** — شوف كل أداة (read/edit/shell/browser...) إدخالها ونتيجتها
-- ✅ **الصلاحيات** — وافق/ارفض من الموبايل (مرة / دايمًا / رفض)
-- ✅ **إيقاف التنفيذ** — زرار stop وقت ما الوكيل شغال
-- ✅ **إنشاء جلسات** — اختار المشروع وابدأ محادثة جديدة
-- ✅ **إعادة اتصال تلقائية** + reconciling مع السيرفر بعد أي انقطاع
+**Core**
+- ✅ **QR pairing** — scan the code from `opencode pair`, no accounts, no sign-up
+- ✅ **Session list** — every session with its title, cost and model
+- ✅ **Live streaming** — text appears as it is written, reasoning is collapsible
+- ✅ **Tool cards** — read/edit/shell/browser… with input and output
+- ✅ **Permissions** — approve or reject from the phone (once / always / reject)
+- ✅ **Interrupt** — stop a running agent
+- ✅ **New sessions** — pick a project and start chatting
+- ✅ **Auto-reconnect** — reconnects and reconciles with the server after any drop
 
-### 🧪 وضع العرض (تجربة من غير سيرفر)
-مش محتاج تفتح OpenCode ولا توصّل أي حاجة عشان تشوف التطبيق شغال:
-شاشة التوصيل → **«جرّب من غير سيرفر — وضع العرض»**. هتلاقي مشاريع ومحادثات
-وهمية، رد بيتكتب لحظيًا، كارت أداة، وطلب صلاحية معلّق تجرّب عليه الموافقة/الرفض.
-(مفيد كمان للمراجعة على المتجر — شوف `docs/PLAY_STORE.md`.)
+**More**
+- ✅ **Multi-server** — manage several OpenCode servers, switch with one tap, each with
+  its own pairing
+- ✅ **Plan quota meter** — how much of your OpenCode Go allowance is left (5-hour,
+  weekly and monthly windows, with reset countdowns)
+- ✅ **Spend overview** — cost and tokens for the period, straight from the server
+- ✅ **Background notifications (Android)** — get told when the agent is waiting for a
+  permission decision or when a run finishes. iOS: not yet (needs server-side push, see
+  the roadmap)
+- ✅ **Arabic & English** — full RTL UI, light/dark/system theme
 
-### 🔥 الميزات المتقدمة
-- ✅ **Multi-Server** — إدارة أكتر من سيرفر OpenCode في نفس التطبيق
-  - إضافة/حذف/تسمية السيرفرات
-  - التبديل بين السيرفرات بضغطة واحدة
-  - كل سيرفر له pairing مستقل
-- ✅ **إشعارات الخلفية (Android)** — تنبيهات فورية وأنت بره التطبيق
-  - تنبيه عند طلب الوكيل صلاحية (مهم جدًا — الوكيل بيستنى ردّك)
-  - تنبيه عند انتهاء/فشل تنفيذ جلسة
-  - خدمة خلفية مستمرة (foreground service) تحافظ على الاتصال
-  - toggle في الإعدادات للتفعيل/الإيقاف
-  - iOS: مش متاح دلوقتي (محتاج push من السيرفر — في الـ roadmap)
+**🧪 Demo mode — no server needed**
+Want to see it without installing OpenCode? On the pairing screen tap
+**“Try it without a server — demo mode”**: sample projects, conversations, a streamed
+reply, a tool card and a pending permission request. (This is also how store reviewers
+can try the app — see [`docs/PLAY_STORE.md`](docs/PLAY_STORE.md).)
 
-## التسطيب
+## Screenshots
 
-### المتطلبات على الكمبيوتر
+| Home (quota chip) | Live run with tool cards | Quota & spend | Pairing |
+|---|---|---|---|
+| ![home](store/screenshots/store_01_home.png) | ![chat](store/screenshots/store_02_chat.png) | ![quota](store/screenshots/store_03_quota.png) | ![welcome](store/screenshots/store_04_welcome.png) |
 
-- OpenCode v2.x مسطب على الماك/الكمبيوتر (`curl -fsSL https://opencode.ai/install | bash`)
-- الموبايل والكمبيوتر على **نفس الشبكة** (Wi-Fi واحد)، أو استخدم
-  [Tailscale](https://tailscale.com) للاتصال من بره الشبكة.
+## Install
 
-### خطوات التوصيل (مرة واحدة)
+### Requirements on the computer
+- OpenCode v2.x installed (`curl -fsSL https://opencode.ai/install | bash`)
+- Phone and computer on the **same network**, or [Tailscale](https://tailscale.com) to
+  connect from anywhere
 
-على الكمبيوتر:
+### One-time pairing
+
+On the computer:
 
 ```bash
-# 1) خلّي سيرفر OpenCode يسمح بالاتصال من الشبكة
+# 1) let the OpenCode server accept connections from the network
 opencode service set hostname 0.0.0.0
 
-# 2) اطلب لينك pairing (هيطلع QR + لينك)
-opencode pair --url http://<عنوان-IP-بتاع-الكمبيوتر>:<البورت>
+# 2) request a pairing link (prints a QR + a URL)
+opencode pair --url http://<COMPUTER-LAN-IP>:<PORT>
 ```
 
-> 💡 تعرف IP الكمبيوتر من: `ipconfig getifaddr en0` (على الماك)
-> والبورت من آخر السطر اللي `opencode pair` بيطبعه (مثال: `49374`).
+> 💡 Find your IP with `ipconfig getifaddr en0` (macOS); the port is on the last line
+> printed by `opencode pair` (e.g. `49374`).
 
-على الموبايل:
+On the phone:
 
-1. سطب التطبيق (APK للأندرويد — شوف تحت).
-2. اضغط **"امسح كود الـ QR"** وامسح الكود الظاهر في التيرمنال.
-   - أو انسخ اللينك من التيرمنال والصقه في التطبيق.
-3. مبروك 🎉 — لقيت المحادثات بتاعتك وتبدأ محادثة جديدة.
+1. Install the app (see below).
+2. Tap **“Scan the QR code”** and scan what the terminal printed — or paste the link.
+3. That's it 🎉 — your sessions are there and you can start a new chat.
 
-> لما السيرفر بيتحديث أو البورت بيتغير بعد restart، باظ الـ pairing القديم —
-> كرر الخطوة 2 وخلاص. (الـ sessions نفسها محفوظة عند OpenCode ومش بتتأثر.)
+> If the server is updated or changes port after a restart, the old pairing stops
+> working — just pair again. Your sessions live on the server and are unaffected.
 
-### التسطيب من الكود
+### Build from source
 
 ```bash
 flutter pub get
 flutter test
 
-# أندرويد
-flutter build apk --release
-# الناتج: build/app/outputs/flutter-apk/app-release.apk
+# Android
+flutter build apk --release        # build/app/outputs/flutter-apk/app-release.apk
 
-# iOS (محتاج Mac + Xcode)
+# iOS (needs macOS + Xcode)
 flutter build ipa --release
-# أو افتح ios/Runner.xcworkspace من Xcode وسطب على تليفونك
 ```
 
-المنصات المدعومة: **Android** و **iOS** (وكمان macOS للتجربة المحلية:
-`flutter run -d macos` — الصق لينك الـ pairing بدل المسح).
+Supported: **Android** and **iOS** (macOS works too for local testing:
+`flutter run -d macos` — paste the pairing link instead of scanning).
 
-## البنية
+## Project layout
 
 ```
 lib/
-├── app.dart                        # MaterialApp + الثيم + اللوجو + التنقل الجذري
+├── app.dart                        # MaterialApp, theme, brand mark, root routing
 ├── core/
-│   ├── models.dart                 # موديلات الـ API (sessions/messages/parts/events)
-│   ├── opencode_client.dart        # REST + SSE client (Basic auth + reconnect)
-│   ├── connection_store.dart       # تخزين آمن لقائمة السيرفرات (v2)
-│   ├── quota.dart                  # الكوتة الشهرية/الأسبوعية (usage API)
-│   ├── usage.dart                  # استهلاكك المحلي (فلوس + توكنز)
-│   ├── demo_client.dart            # وضع العرض: سيرفر وهمي كامل
-│   ├── watcher_config.dart         # إعدادات watcher للخلفية
-│   ├── notification_watcher.dart   # TaskHandler للعزلة الخلفية (SSE + poll)
-│   └── notification_center.dart    # Main isolate: init + local notifications
-├── state/
-│   ├── app_state.dart              # Multi-server + connection lifecycle + SSE hub
-│   ├── sessions_state.dart         # قائمة المحادثات بالتحديث اللحظي
-│   ├── quota_state.dart            # الكوتة + الاستهلاك (مشترك بين 3 شاشات)
-│   ├── chat_state.dart             # الرسائل + الـ streaming + الصلاحيات
-│   └── settings_state.dart         # اللغة + المظهر
-├── screens/
-│   ├── welcome_screen.dart         # pairing (+ وضع العرض)
-│   ├── scanner_screen.dart         # ماسح الـ QR
-│   ├── home_screen.dart            # الهوم (شريحة الكوتة + المشروع + المقترحات)
-│   ├── chat_screen.dart            # المحادثة
-│   ├── projects_screen.dart        # المشاريع والمحادثات
-│   └── settings_screen.dart        # السيرفرات + الإشعارات + الكوتة + الفريق
-└── widgets/                        # فقاعات، كروت الأدوات، الصلاحيات، الكوتة، الإدخال
+│   ├── models.dart                 # API models (sessions/messages/parts/events)
+│   ├── opencode_client.dart        # REST + SSE client (basic auth + reconnect)
+│   ├── connection_store.dart       # secure storage for the paired servers
+│   ├── quota.dart                  # plan quota (OpenCode Go usage API)
+│   ├── usage.dart                  # local spend (cost + tokens)
+│   ├── demo_client.dart            # demo mode: a complete in-memory server
+│   ├── watcher_config.dart         # background watcher settings
+│   ├── notification_watcher.dart   # background isolate TaskHandler (SSE + poll)
+│   └── notification_center.dart    # main isolate: init + local notifications
+├── state/                          # app / sessions / chat / quota / settings
+├── screens/                        # welcome, scanner, home, chat, projects, settings
+└── widgets/                        # bubbles, tool cards, permissions, quota, composer
 
-tools/                              # توليد الأيقونات وصور المتجر + مفتاح النشر
-store/                              # أيقونة المتجر + الرسم الترويجي + صور الشاشات
-docs/PLAY_STORE.md                  # خطوات النشر على Google Play
+tools/                              # brand asset generator, keystore + screenshot scripts
+store/                              # store icon, feature graphic, screenshots
+docs/                               # Play & App Store checklists, store copy, privacy
 ```
 
-## ملحوظات تقنية
+## Technical notes
 
-- **الـ auth**: سيرفر OpenCode بيستخدم HTTP Basic (`opencode:<token>`) —
-  الـ token بيتولد من لينك الـ pairing مرة واحدة وبيتخزن في
-  `flutter_secure_storage` (Keychain على iOS/macOS و Keystore على Android)،
-  مع fallback لملف خاص بالتطبيق لو التخزين الآمن مش متاح.
-- **الأحداث**: `GET /api/event` (SSE) — stream "live-only" من غير replay،
-  فالتطبيق بيعمل reconnect تلقائي وبعدها بيعمل refresh للحالة من السيرفر.
-- **إشعارات الخلفية**: لازم حاجتين موجودين في المشروع ومينفعش يتشالوا:
-  (1) تعريف الـ `<service>` بتاع `flutter_foreground_task` في
-  `android/app/src/main/AndroidManifest.xml` (البلجن مابيعرّفوش بنفسه، ومن
-  غير `foregroundServiceType` الخدمة مش هتشتغل من أندرويد 14)، و
-  (2) نداء `FlutterForegroundTask.initCommunicationPort()` في `main()` —
-  من غيره أي داتا جاية من الـ isolate بتاع الخدمة مش بتوصل للـ UI.
-  فيه تست (`test/android_notifications_test.dart`) بيحرس الاتنين دول.
-- **الصلاحيات**: بيتعمل poll على `GET /api/session/{id}/permission` كل 2.5 ثانية
-  طول ما الوكيل شغال + فورًا مع كل نداء أداة، والرد بيروح لـ
+- **Auth** — the OpenCode server uses HTTP Basic (`opencode:<token>`). The token comes
+  from the one-time pairing link and is stored with `flutter_secure_storage`
+  (Keychain on iOS/macOS, Keystore on Android), with an app-private file fallback.
+- **Events** — `GET /api/event` (SSE) is live-only (no replay), so the app reconnects
+  automatically and refreshes state from the server afterwards.
+- **Background notifications** depend on two things that must stay in the project:
+  1. the `<service>` declaration for `flutter_foreground_task` in
+     `android/app/src/main/AndroidManifest.xml` — the plugin does not ship it, and from
+     Android 14 on it must carry `foregroundServiceType`;
+  2. `FlutterForegroundTask.initCommunicationPort()` in `main()` — without it nothing
+     sent by the service isolate ever reaches the UI.
+  `test/android_notifications_test.dart` guards both.
+- **Permissions** are polled (`GET /api/session/{id}/permission`) every 2.5s while the
+  agent runs, plus immediately after each tool call; replies go to
   `POST /api/session/{id}/permission/{requestId}/reply`.
-- كل أشكال البيانات في `models.dart` متبنية على ردود فعلية من سيرفر
-  OpenCode 2.0.x (شوف `test/models_test.dart`).
-- التطبيق بيسمح بـ **HTTP غير مشفر** على الشبكة المحلية فقط لأن سيرفر OpenCode
-  بيتواصل بـ HTTP عادي — لو بتستخدمه عبر الإنترنت، استخدم Tailscale (مشفّر).
+- **Quota** is not exposed by the server API. The server *does* hold the account
+  credential, so the app asks it (`GET /api/credential`) and reads OpenCode's own
+  accounting at `https://opencode.ai/zen/go/v1/usage`.
+- All shapes in `models.dart` are based on real responses from an OpenCode 2.0.x server
+  (see `test/models_test.dart`).
+- **Plain HTTP** is allowed on the local network only, because that is how the OpenCode
+  server talks. Use Tailscale (encrypted) if you connect over the internet.
 
-## تحسينات مستقبلية (اسحب وكمّل 😄)
+## Publishing
 
-- اختيار الموديل/الوكيل من داخل التطبيق (`/api/model` + `/api/agent`)
-- عرض الـ diffs والملفات المعدلة داخل كروت الأدوات
-- إشعارات محلية عند اكتمال التنفيذ أو طلب صلاحية والتطبيق في الخلفية
-- بحث داخل الجلسات + تقسيمها بالمشاريع
-- WebSocket PTY للطرفية الحية (`/api/pty`)
+- Package name: `com.gws.opencode`
+- Icons and store artwork are generated by `python3 tools/generate_brand_assets.py`
+- Google Play: [`docs/PLAY_STORE.md`](docs/PLAY_STORE.md) ·
+  [`docs/store-listing.md`](docs/store-listing.md) (copy ready to paste) ·
+  [privacy policy](https://globalwebsolutions.github.io/opencode-mobile/privacy/)
+- App Store: [`docs/APP_STORE.md`](docs/APP_STORE.md)
 
-## مشاريع ذات صلة
+## Related projects
 
-| المشروع | الوصف |
+| Project | Description |
 |---|---|
-| [**OpenCode Chat Sidebar**](https://github.com/globalwebsolutions/opencode-chat-sidebar) | إضافة VS Code — دردشة مع وكلاء OpenCode جوه المحرر (نفس الفريق) |
+| [**OpenCode Chat Sidebar**](https://github.com/globalwebsolutions/opencode-chat-sidebar/releases) | VS Code extension — chat with OpenCode agents inside your editor (same team) |
 
-> الاثنين بيتكلموا مع نفس سيرفر OpenCode، فتقدر تبدأ محادثة على الكمبيوتر
-> وتكمّلها من الموبايل (أو العكس) لأن الجلسات محفوظة عند السيرفر.
+> Both talk to the same OpenCode server, so you can start a conversation on the desktop
+> and pick it up from the phone (or the other way round).
 
-## النشر على المتجر
+## Roadmap
 
-- الـ package name: `com.gws.opencode`
-- الأيقونات وصور المتجر بتتولد من `tools/generate_brand_assets.py`
-- كل خطوات النشر (التوقيع، الـ AAB، نماذج Play، بيانات الاختبار):
-  [`docs/PLAY_STORE.md`](docs/PLAY_STORE.md)
+- Model/agent picker from inside the app
+- Diffs and changed files inside tool cards
+- Search across sessions
+- Live terminal over WebSocket PTY (`/api/pty`)
+- iOS background notifications (needs server-side push)
 
-## الفريق
+## Credits
 
-التطبيق ده صُنع واتطوّر بواسطة **Global Web Solutions** — 2026.
+Built and maintained by **Global Web Solutions** — 2026.
 🔗 [Globalweb.Solutions](https://Globalweb.Solutions)
 
-## الترخيص
+## License
 
-MIT — نفس ترخيص OpenCode.
+MIT — the same license as OpenCode.
+
+---
+
+<details>
+<summary><b>بالعربي (ملخص سريع)</b></summary>
+
+تطبيق موبايل **غير رسمي** لسيرفر OpenCode اللي على جهازك: تتابع محادثاتك والردود
+بتتكتب لحظيًا، كروت الأدوات، وموافقة الصلاحيات — كله من التليفون.
+
+**التوصيل مرة واحدة:**
+```bash
+opencode service set hostname 0.0.0.0
+opencode pair --url http://<IP-الكمبيوتر>:<PORT>
+```
+بعدين من التطبيق: **امسح كود الـ QR** وخلاص.
+
+- مفيش حسابات ولا جمع بيانات — التفاصيل في
+  [سياسة الخصوصية](https://globalwebsolutions.github.io/opencode-mobile/privacy/).
+- عايز تجرّب من غير سيرفر؟ شاشة التوصيل ← **«جرّب من غير سيرفر — وضع العرض»**.
+- خطوات النشر: [`docs/PLAY_STORE.md`](docs/PLAY_STORE.md).
+
+</details>

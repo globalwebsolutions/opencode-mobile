@@ -56,12 +56,17 @@ def storeify(path: str, out_dir: str) -> str:
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
+    args = sys.argv[1:]
+    out_dir = "store/screenshots"
+    if "--out" in args:
+        i = args.index("--out")
+        out_dir = args[i + 1]
+        del args[i:i + 2]
+    if not args:
         print(__doc__)
         raise SystemExit(2)
 
-    out_dir = "store/screenshots"
-    for path in sys.argv[1:]:
+    for path in args:
         print(f"  {path} -> {storeify(path, out_dir)}")
     print(f"done: {TARGET_W}x{TARGET_H} (2:1) in {out_dir}/")
 

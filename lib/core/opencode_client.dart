@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 
 import 'l10n.dart';
 import 'models.dart';
+import 'usage.dart';
 
 /// Thrown for non-2xx API responses.
 class OpenCodeApiException implements Exception {
@@ -221,6 +222,28 @@ class OpenCodeClient {
         .whereType<Map>()
         .map((m) => OcProject.fromJson(Map<String, dynamic>.from(m)))
         .toList();
+  }
+
+  /// Local spend for the period the server aggregates
+  /// (GET /api/experimental/session/stats).
+  Future<UsageSummary> getUsageSummary() async =>
+      UsageSummary.fromJson(
+          await _getJson('/api/experimental/session/stats'));
+
+  /// Provider credentials held by the server (GET /api/credential).
+  ///
+  /// Used for the plan quota meter: the server stores the OpenCode console
+  /// token, and the usage API only answers to that token.
+  Future<List<Map<String, dynamic>>> listCredentials() async {
+    final json = await _getJson('/api/credential');
+    final data = json['data'];
+    if (data is List) {
+      return [
+        for (final c in data)
+          if (c is Map) Map<String, dynamic>.from(c),
+      ];
+    }
+    return const [];
   }
 
   Future<List<AgentInfo>> listAgents() async {

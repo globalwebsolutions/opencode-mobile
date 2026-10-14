@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../app.dart';
 import '../core/l10n.dart';
 import '../state/app_state.dart';
+import '../widgets/developer_card.dart';
 import 'connect_guide_screen.dart';
 
 /// First-run screen: pair the app with an OpenCode server.
@@ -173,7 +174,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           )
                         : Text(L.tr('اتصال', 'Connect')),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
+                  TextButton.icon(
+                    onPressed: _working
+                        ? null
+                        : () => context.read<AppState>().enterDemoMode(),
+                    icon: const Icon(Icons.science_outlined, size: 18),
+                    label: Text(L.tr(
+                        'جرّب من غير سيرفر — وضع العرض',
+                        'Try it without a server — demo mode')),
+                  ),
                   TextButton.icon(
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -187,7 +197,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     const SizedBox(height: 16),
                     _ErrorCard(message: app.error!, scheme: scheme),
                   ],
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
+                  const DeveloperCredit(),
+                  const SizedBox(height: 12),
                   Text(
                     L.tr(
                         'مشروع مجتمعي غير رسمي — مش مبني من فريق OpenCode ومنتابعش لأوبن كود بأي شكل. OpenCode نفسه مفتوح المصدر.',
@@ -197,6 +209,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
                         ),
                   ),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),

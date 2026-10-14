@@ -146,6 +146,20 @@ class ConnectionStore {
   }
 
   // ---------------------------------------------------------------------------
+  // Demo mode
+  // ---------------------------------------------------------------------------
+
+  // Kept out of the config map so SettingsState's language/theme writes can
+  // never clobber it.
+  static const _demoKey = 'opencode_demo_mode_v1';
+
+  /// True when the app was left in the built-in demo (no server needed).
+  Future<bool> readDemoMode() async => (await _readRaw(_demoKey)) == 'true';
+
+  Future<void> writeDemoMode(bool enabled) =>
+      _writeRaw(_demoKey, enabled ? 'true' : null);
+
+  // ---------------------------------------------------------------------------
   // App config (language & theme preferences)
   // ---------------------------------------------------------------------------
 

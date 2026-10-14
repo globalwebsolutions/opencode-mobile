@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/connection_store.dart';
 import 'core/l10n.dart';
 import 'state/app_state.dart';
+import 'state/quota_state.dart';
 import 'state/sessions_state.dart';
 import 'state/settings_state.dart';
 import 'screens/welcome_screen.dart';
@@ -36,6 +37,10 @@ class OpenCodeMobileApp extends StatelessWidget {
           create: (context) => SessionsState(app: context.read<AppState>()),
           update: (context, app, previous) =>
               previous ?? SessionsState(app: app),
+        ),
+        ChangeNotifierProxyProvider<AppState, QuotaState>(
+          create: (context) => QuotaState(context.read<AppState>()),
+          update: (context, app, previous) => previous ?? QuotaState(app),
         ),
       ],
       child: Consumer<SettingsState>(
@@ -133,7 +138,11 @@ class _Splash extends StatelessWidget {
   }
 }
 
-/// Simple geometric OpenCode-style mark.
+/// The app mark: the `>_` prompt on the brand square.
+///
+/// Painted rather than typed, so it is the same mark as the launcher icon and
+/// the store artwork (see tools/generate_brand_assets.py) and stays crisp at
+/// any size.
 class AppLogo extends StatelessWidget {
   const AppLogo({super.key, this.size = 48});
 
@@ -149,20 +158,56 @@ class AppLogo extends StatelessWidget {
         color: scheme.primary,
         borderRadius: BorderRadius.circular(size * 0.28),
       ),
-      child: Center(
-        child: Text(
-          '>_',
-          style: TextStyle(
-            color: scheme.onPrimary,
-            fontSize: size * 0.42,
-            fontWeight: FontWeight.w800,
-            fontFamily: 'monospace',
-            height: 1,
-          ),
-        ),
+      child: CustomPaint(
+        painter: _PromptMarkPainter(color: scheme.onPrimary),
+        size: Size.square(size),
       ),
     );
   }
+}
+
+/// Draws the `>_` mark with the same proportions as the generated brand
+/// assets (mark box: 54% × 28% of the canvas, 30% stroke, round caps).
+class _PromptMarkPainter extends CustomPainter {
+  const _PromptMarkPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.shortestSide;
+    final box = Rect.fromLTWH(s * 0.23, s * 0.36, s * 0.54, s * 0.28);
+    final stroke = box.height * 0.30;
+    final inset = stroke * 0.55;
+
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final apex = Offset(box.left + box.width * 0.44, box.center.dy);
+    canvas.drawPath(
+      Path()
+        ..moveTo(box.left + inset, box.top + inset)
+        ..lineTo(apex.dx, apex.dy)
+        ..lineTo(box.left + inset, box.bottom - inset),
+      paint,
+    );
+
+    final baseline = box.bottom - inset;
+    canvas.drawPath(
+      Path()
+        ..moveTo(box.left + box.width * 0.60, baseline)
+        ..lineTo(box.right - inset, baseline),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_PromptMarkPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 /// Pushes the QR scanner screen; returns the scanned pairing link.

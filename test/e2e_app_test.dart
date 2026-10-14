@@ -1,97 +1,19 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/app.dart';
 import 'package:opencode_mobile/core/connection_store.dart';
 import 'package:opencode_mobile/core/l10n.dart';
 import 'package:opencode_mobile/core/models.dart';
-import 'package:opencode_mobile/core/opencode_client.dart';
 import 'package:opencode_mobile/state/app_state.dart';
 import 'package:opencode_mobile/state/settings_state.dart';
 
-/// Deterministic in-process OpenCode client used to drive the real widget
-/// tree end-to-end. The real HTTP/SSE wire behavior is covered separately by
-/// test/opencode_client_test.dart and test/chat_state_test.dart against a
-/// real in-process HTTP server.
-class FakeOpenCodeClient extends OpenCodeClient {
-  FakeOpenCodeClient() : super(baseUrl: 'http://fake.local', token: 'fake');
-
-  final StreamController<OcEvent> eventsController =
-      StreamController<OcEvent>.broadcast();
-  final List<String> prompts = [];
-  final List<String> permissionReplies = [];
-
-  List<OcSession> sessions = [];
-  List<OcMessage> messages = [];
-  List<PermissionRequest> pendingPermissions = [];
-
-  @override
-  Future<ServerInfo> getInfo() async =>
-      ServerInfo(version: '2.0.26', urls: [baseUrl]);
-
-  @override
-  Future<List<OcSession>> listSessions({int limit = 100}) async => sessions;
-
-  @override
-  Future<List<OcMessage>> getMessages(String sessionID, {int limit = 200}) async =>
-      List.of(messages);
-
-  @override
-  Future<void> prompt(String sessionID, String text,
-      {List<Map<String, dynamic>> files = const []}) async {
-    prompts.add(text);
-    // A real server persists the user message and, after execution ends,
-    // the assistant reply; the reconciled history reflects both.
-    messages = [
-      ...messages,
-      OcMessage(
-          id: 'msg_u_$text', type: 'user', text: text),
-      OcMessage(
-        id: 'msg_live1',
-        type: 'assistant',
-        agent: 'build',
-        content: const [OcPart(type: 'text', text: 'الرد وصل كامل')],
-      ),
-    ];
-  }
-
-  @override
-  Future<void> interrupt(String sessionID) async {}
-
-  @override
-  Future<List<PermissionRequest>> listSessionPermissions(
-      String sessionID) async {
-    await Future<void>.delayed(Duration.zero);
-    return List.of(pendingPermissions);
-  }
-
-  @override
-  Future<void> replyPermission(
-      String sessionID, String requestID, String decision) async {
-    permissionReplies.add(decision);
-    pendingPermissions =
-        pendingPermissions.where((p) => p.id != requestID).toList();
-  }
-
-  @override
-  Future<List<OcProject>> listProjects() async => [
-        OcProject(id: 'p1', canonical: '/tmp/project', vcs: 'git'),
-      ];
-
-  @override
-  Stream<OcEvent> events(
-      {void Function(SseStatus status)? onStatus,
-      Duration maxBackoff = const Duration(seconds: 30)}) {
-    onStatus?.call(SseStatus.connected);
-    return eventsController.stream;
-  }
-}
+import 'support/fake_opencode_client.dart';
 
 void main() {
   testWidgets('end-to-end: sessions list, chat, streaming, permissions',
       (tester) async {
     final fake = FakeOpenCodeClient()
+      ..projects = [const OcProject(id: 'p1', canonical: '/tmp/project', vcs: 'git')]
       ..sessions = [
         const OcSession(
           id: 'ses_e2e1',
@@ -134,8 +56,8 @@ void main() {
     // Home is the chat-first landing screen.
     expect(find.textContaining('إزاي أقدر أساعدك'), findsOneWidget);
 
-    // Projects & history live behind the "المشاريع" button.
-    await tester.tap(find.text('المشاريع'));
+    // Projects & history live behind the folder button in the top bar.
+    await tester.tap(find.byIcon(Icons.folder_open_rounded));
     await tester.pumpAndSettle();
     expect(find.text('تجربة E2E'), findsOneWidget);
 

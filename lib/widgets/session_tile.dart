@@ -60,6 +60,10 @@ class SessionTile extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
+      // Only the project name flexes; the time is always short. The model
+      // badge used to live here too, but the row is far too narrow for three
+      // items on a phone (it overflowed), and the model is already shown in
+      // the chat's own header.
       subtitle: Row(
         children: [
           if (dir != null) ...[
@@ -80,28 +84,11 @@ class SessionTile extends StatelessWidget {
           ],
           Text(
             relativeTime(session.updatedMs ?? session.createdMs),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: scheme.onSurfaceVariant),
           ),
-          if (session.model != null) ...[
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(
-                color: scheme.secondary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                session.model!.id,
-                textDirection: TextDirection.ltr,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontSize: 10.5,
-                  color: scheme.secondary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
         ],
       ),
       trailing: busy
@@ -132,11 +119,11 @@ class SessionTile extends StatelessWidget {
     );
   }
 
+  /// Last path segment only — a full path never fits a phone row. Truncation
+  /// is left to the Text's own ellipsis.
   String? _shortDir(String? directory) {
     if (directory == null || directory.isEmpty) return null;
     final parts = directory.split(RegExp(r'[\\/]'));
-    final name =
-        parts.isEmpty || parts.last.isEmpty ? directory : parts.last;
-    return name.length > 24 ? name.substring(0, 24) : name;
+    return parts.isEmpty || parts.last.isEmpty ? directory : parts.last;
   }
 }

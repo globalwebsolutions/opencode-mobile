@@ -6,6 +6,9 @@ import '../core/l10n.dart';
 import '../core/opencode_client.dart';
 import '../state/app_state.dart';
 import '../state/settings_state.dart';
+import '../widgets/developer_card.dart';
+import '../widgets/quota_card.dart';
+import '../widgets/related_projects_card.dart';
 import 'connect_guide_screen.dart';
 import 'welcome_screen.dart';
 
@@ -92,13 +95,15 @@ class SettingsScreen extends StatelessWidget {
                 return SwitchListTile(
                   title: Text(L.tr('الإشعارات في الخلفية', 'Background notifications')),
                   subtitle: Text(
-                    enabled
-                        ? L.tr('متصل — هتوصلك تنبيهات طلبات الصلاحية ونهاية التنفيذ', 'On — permission requests and finished runs notify you')
-                        : L.tr('اضغط للتفعيل — التطبيق هيشغل خدمة خلفية', 'Tap to enable — starts a background service'),
+                    app.demoMode
+                        ? L.tr('مش متاح في وضع العرض — محتاج سيرفر موصّل', 'Not available in demo mode — needs a paired server')
+                        : enabled
+                            ? L.tr('متصل — هتوصلك تنبيهات طلبات الصلاحية ونهاية التنفيذ', 'On — permission requests and finished runs notify you')
+                            : L.tr('اضغط للتفعيل — التطبيق هيشغل خدمة خلفية', 'Tap to enable — starts a background service'),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   value: enabled,
-                  onChanged: (val) async {
+                  onChanged: app.demoMode ? null : (val) async {
                     if (val) {
                       final ok = await app.enableNotifications(
                           lang: settings.effectiveLang.name,
@@ -163,6 +168,22 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
           ]),
+          _Section(
+              title: L.tr('الاستهلاك والكوتة', 'Quota & usage'),
+              scheme: scheme,
+              children: [
+                if (app.demoMode)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+                    child: Text(
+                      L.tr('مش متاح في وضع العرض — محتاج سيرفر موصّل',
+                          'Not available in demo mode — needs a paired server'),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  )
+                else
+                  const QuotaCard(),
+              ]),
           _Section(title: L.tr('الاتصال الحالي', 'Current connection'), scheme: scheme, children: [
             _Row(
               label: L.tr('السيرفر', 'Server'),
@@ -177,6 +198,37 @@ class SettingsScreen extends StatelessWidget {
               valueColor: statusColor,
             ),
           ]),
+          if (app.demoMode)
+            _Section(
+                title: L.tr('وضع العرض', 'Demo mode'),
+                scheme: scheme,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.science_outlined),
+                    title: Text(L.tr('إيقاف وضع العرض', 'Leave demo mode')),
+                    subtitle: Text(L.tr('هترجع لشاشة توصيل السيرفر',
+                        'Back to the pairing screen')),
+                    onTap: () async {
+                      await app.exitDemoMode();
+                      if (context.mounted) {
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
+                      }
+                    },
+                  ),
+                ]),
+          _Section(
+              title: L.tr('الفريق المطوِّر', 'Developed by'),
+              scheme: scheme,
+              children: const [
+                DeveloperCard(),
+              ]),
+          _Section(
+              title: L.tr('مشاريع ذات صلة', 'Related projects'),
+              scheme: scheme,
+              children: const [
+                RelatedProjectsCard(),
+              ]),
           _Section(title: L.tr('عن التطبيق', 'About'), scheme: scheme, children: [
             Padding(
               padding: EdgeInsets.fromLTRB(20, 4, 20, 10),

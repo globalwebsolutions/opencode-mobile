@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import '../core/models.dart';
 import '../core/l10n.dart';
 import '../core/connection_store.dart';
+import '../core/demo_client.dart';
 import '../core/notification_center.dart';
 import '../core/opencode_client.dart';
 import '../core/watcher_config.dart';
@@ -45,10 +46,63 @@ class AppState extends ChangeNotifier {
     return connections.isEmpty ? null : connections.first;
   }
 
+  /// True while the app is running on the built-in demo server.
+  bool demoMode = false;
+
+  /// Runs the app against [DemoOpenCodeClient] — sample projects, chats,
+  /// messages and a pending permission request, with no server involved.
+  /// Used for testing and for store review.
+  Future<void> enterDemoMode() async {
+    await _stopEvents();
+    _client?.close();
+    demoMode = true;
+    // Best-effort with a hard deadline: entering demo mode must never block on
+    // a storage write.
+    await _persistDemoFlag(true);
+    try {
+      _client = DemoOpenCodeClient();
+      serverInfo = await _client!.getInfo();
+      error = null;
+      phase = AppPhase.ready;
+      _startEvents();
+    } catch (e) {
+      error = friendlyErrorText(e);
+      phase = AppPhase.pairFailed;
+    }
+    notifyListeners();
+  }
+
+  /// Leaves demo mode and returns to the pairing screen.
+  Future<void> exitDemoMode() async {
+    await _stopEvents();
+    _client?.close();
+    _client = null;
+    serverInfo = null;
+    demoMode = false;
+    sseStatus = SseStatus.disconnected;
+    await _persistDemoFlag(false);
+    phase = AppPhase.unpaired;
+    notifyListeners();
+  }
+
+  Future<void> _persistDemoFlag(bool enabled) async {
+    try {
+      await _store
+          .writeDemoMode(enabled)
+          .timeout(const Duration(seconds: 3));
+    } catch (e) {
+      debugPrint('demo flag persist failed: $e');
+    }
+  }
+
   /// Loads the stored servers, connects to the active one, and starts the
   /// event stream.
   Future<void> bootstrap() async {
     try {
+      if (await _store.readDemoMode()) {
+        await enterDemoMode();
+        return;
+      }
       final stored = await _store.readAll();
       connections = stored.connections;
       final active = stored.active;
@@ -202,6 +256,10 @@ class AppState extends ChangeNotifier {
   @visibleForTesting
   void attachForTest(OpenCodeClient client, {ServerInfo? info}) {
     _client = client;
+    // Keeps the demo banner correct when tests attach the demo server
+    // directly (they can't go through the store, which needs platform
+    // channels).
+    demoMode = client is DemoOpenCodeClient;
     serverInfo = info;
     phase = AppPhase.ready;
     _startEvents();

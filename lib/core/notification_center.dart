@@ -19,11 +19,28 @@ bool _ready = false;
 String? get notificationSystemError => _initError;
 String? _initError;
 
+/// Retries initialization a few times: the first attempt can land before the
+/// Android Activity/Context is attached, and flutter_local_notifications then
+/// throws a NullPointerException inside `initialize()`.
+Future<void> retryInitializeNotificationSystem({int attempts = 3}) async {
+  for (var attempt = 0; attempt < attempts; attempt++) {
+    await initializeNotificationSystem();
+    if (_ready) return;
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+  }
+  debugPrint('notification init gave up: $_initError');
+}
+
+bool _dataCallbackRegistered = false;
+
 /// Initializes the notification system once. Never throws: failures are
 /// recorded in [notificationSystemError] so the app still launches and the
 /// user can retry. Safe to call many times.
 Future<void> initializeNotificationSystem() async {
   if (_ready) return;
+  // 1) Open the channel the watcher isolate sends its events over. This has
+  //    nothing to do with the local-notifications plugin, so it must not be
+  //    skipped just because that plugin failed to initialize.
   try {
     // Prepare the foreground service options (doesn't start the service).
     FlutterForegroundTask.init(
@@ -41,10 +58,30 @@ Future<void> initializeNotificationSystem() async {
       ),
       foregroundTaskOptions: ForegroundTaskOptions(
         eventAction: ForegroundTaskEventAction.repeat(5000),
+        // The watcher holds a long-lived SSE connection: without the Wi-Fi
+        // lock Android dozes the radio and the stream dies while the screen
+        // is off.
+        allowWakeLock: true,
+        allowWifiLock: true,
+        allowAutoRestart: true,
+        // Keep watching after the user swipes the task away.
+        stopWithTask: false,
       ),
     );
+    // Subscribe to messages from the background isolate. Guarded so a retry
+    // can't register the same callback twice (which would double every alert).
+    if (!_dataCallbackRegistered) {
+      FlutterForegroundTask.addTaskDataCallback(_onDataFromWatcher);
+      _dataCallbackRegistered = true;
+    }
+  } catch (e) {
+    // Never let notification setup break the app — record it and move on.
+    debugPrint('foreground task init failed: $e');
+    _initError = '$e';
+  }
 
-    // Initialize local notifications for the alert-style messages.
+  // 2) Local notifications, used for the alert-style messages.
+  try {
     const androidSettings =
         AndroidInitializationSettings('ic_stat_ic_notification');
     const initSettings = InitializationSettings(android: androidSettings);
@@ -69,14 +106,10 @@ Future<void> initializeNotificationSystem() async {
       ));
     }
 
-    // Subscribe to messages from the background isolate.
-    FlutterForegroundTask.addTaskDataCallback(_onDataFromWatcher);
-
     _initError = null;
     _ready = true;
   } catch (e) {
-    // Never let notification setup break the app — record it and move on.
-    debugPrint('notification init failed: $e');
+    debugPrint('local notifications init failed: $e');
     _initError = '$e';
   }
 }
@@ -154,15 +187,24 @@ Future<void> startForegroundService(String persistentText) async {
     }
     rethrow;
   }
-  await FlutterForegroundTask.startService(
+  // startService never throws: it returns a failure result instead. Ignoring
+  // it used to report success even when nothing started, which is exactly how
+  // the "switch says on but no notifications arrive" bug looked.
+  final result = await FlutterForegroundTask.startService(
     notificationTitle: 'OpenCode',
     notificationText: persistentText,
     callback: startNotificationService,
   );
+  if (result is ServiceRequestFailure) {
+    throw Exception('${result.error}');
+  }
 }
 
 Future<void> stopForegroundService() async {
-  await FlutterForegroundTask.stopService();
+  final result = await FlutterForegroundTask.stopService();
+  if (result is ServiceRequestFailure) {
+    throw Exception('${result.error}');
+  }
 }
 
 Future<bool> get isForegroundServiceRunning =>
@@ -170,5 +212,10 @@ Future<bool> get isForegroundServiceRunning =>
 
 /// Convenience: updates the foreground persistent notification text.
 Future<void> updatePersistentNotificationText(String text) async {
-  await FlutterForegroundTask.updateService(notificationText: text);
+  final result = await FlutterForegroundTask.updateService(
+    notificationText: text,
+  );
+  if (result is ServiceRequestFailure) {
+    throw Exception('${result.error}');
+  }
 }

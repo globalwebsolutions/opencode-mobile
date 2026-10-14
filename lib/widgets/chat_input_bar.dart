@@ -15,6 +15,9 @@ class ChatInputBar extends StatefulWidget {
     this.onAttach,
     this.attachments = const [],
     this.onRemoveAttachment,
+    this.controller,
+    this.focusNode,
+    this.hint,
   });
 
   final bool busy;
@@ -26,18 +29,28 @@ class ChatInputBar extends StatefulWidget {
   final List<OcAttachment> attachments;
   final ValueChanged<int>? onRemoveAttachment;
 
+  /// Optional external controller/focus node, so a parent (e.g. the home
+  /// screen's quick suggestions) can prefill and focus the composer. When
+  /// omitted the bar owns its own.
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+
+  /// Overrides the placeholder text.
+  final String? hint;
+
   @override
   State<ChatInputBar> createState() => _ChatInputBarState();
 }
 
 class _ChatInputBarState extends State<ChatInputBar> {
-  final _controller = TextEditingController();
-  final _focusNode = FocusNode();
+  late final TextEditingController _controller =
+      widget.controller ?? TextEditingController();
+  late final FocusNode _focusNode = widget.focusNode ?? FocusNode();
 
   @override
   void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
+    if (widget.controller == null) _controller.dispose();
+    if (widget.focusNode == null) _focusNode.dispose();
     super.dispose();
   }
 
@@ -99,10 +112,13 @@ class _ChatInputBarState extends State<ChatInputBar> {
                     onChanged: (_) => setState(() {}),
                     onSubmitted: (_) => _send(),
                     decoration: InputDecoration(
+                      // The composer is narrow (two buttons + a field); a long
+                      // placeholder wraps onto a second line and makes the bar
+                      // jump, so the hint is kept short and pinned to one line.
+                      hintMaxLines: 1,
                       hintText: widget.busy
                           ? L.tr('الوكيل شغال حاليًا...', 'Agent is working...')
-                          : L.tr('اكتب رسالتك لـ OpenCode...',
-                              'Message OpenCode...'),
+                          : (widget.hint ?? L.tr('اكتب رسالتك...', 'Message...')),
                     ),
                   ),
                 ),

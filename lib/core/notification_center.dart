@@ -9,50 +9,74 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:opencode_mobile/core/notification_watcher.dart';
 
-/// Initializes the notification system once. Safe to call many times.
+/// True when the notification system finished initializing successfully.
+/// The settings UI uses this to show a helpful message instead of crashing.
+bool get notificationSystemReady => _ready;
+bool _ready = false;
+
+/// Optional failure reason, for surfacing to the user in Settings.
+String? get notificationSystemError => _initError;
+String? _initError;
+
+/// Initializes the notification system once. Never throws: failures are
+/// recorded in [notificationSystemError] so the app still launches and the
+/// user can retry. Safe to call many times.
 Future<void> initializeNotificationSystem() async {
-  // Prepare the foreground service options (doesn't start the service).
-  FlutterForegroundTask.init(
-    androidNotificationOptions: AndroidNotificationOptions(
-      channelId: 'opencode_foreground',
-      channelName: 'OpenCode خدمة الخلفية',
-      channelDescription: 'يظل متواصلًا بالسيرفر في الخلفية',
-      channelImportance: NotificationChannelImportance.LOW,
-      priority: NotificationPriority.LOW,
-    ),
-    iosNotificationOptions: const IOSNotificationOptions(
-      showNotification: false,
-      playSound: false,
-    ),
-    foregroundTaskOptions: ForegroundTaskOptions(
-      eventAction: ForegroundTaskEventAction.repeat(5000),
-    ),
-  );
+  if (_ready) return;
+  try {
+    // Prepare the foreground service options (doesn't start the service).
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'opencode_foreground',
+        channelName: 'OpenCode خدمة الخلفية',
+        channelDescription: 'يظل متواصلًا بالسيرفر في الخلفية',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: false,
+        playSound: false,
+      ),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.repeat(5000),
+      ),
+    );
 
-  // Initialize local notifications for the alert-style messages.
-  const androidSettings = AndroidInitializationSettings('ic_stat_ic_notification');
-  const initSettings = InitializationSettings(android: androidSettings);
-  await _plugin.initialize(
-    settings: initSettings,
-    onDidReceiveNotificationResponse: (response) {
-      debugPrint('notification tapped payload=${response.payload}');
-    },
-  );
+    // Initialize local notifications for the alert-style messages.
+    const androidSettings =
+        AndroidInitializationSettings('ic_stat_ic_notification');
+    const initSettings = InitializationSettings(android: androidSettings);
+    await _plugin.initialize(
+      settings: initSettings,
+      onDidReceiveNotificationResponse: (response) {
+        debugPrint('notification tapped payload=${response.payload}');
+      },
+    );
 
-  // Create the alert channel (high importance so permission requests pop).
-  final androidImpl =
-      _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-  if (androidImpl != null) {
-    await androidImpl.createNotificationChannel(const AndroidNotificationChannel(
-      'opencode_alerts',
-      'إشعارات OpenCode',
-      description: 'طلب صلاحية أو انتهاء تنفيذ',
-      importance: Importance.high,
-    ));
+    // Create the alert channel (high importance so permission requests pop).
+    final androidImpl = _plugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImpl != null) {
+      await androidImpl.createNotificationChannel(
+          const AndroidNotificationChannel(
+        'opencode_alerts',
+        'إشعارات OpenCode',
+        description: 'طلب صلاحية أو انتهاء تنفيذ',
+        importance: Importance.high,
+      ));
+    }
+
+    // Subscribe to messages from the background isolate.
+    FlutterForegroundTask.addTaskDataCallback(_onDataFromWatcher);
+
+    _initError = null;
+    _ready = true;
+  } catch (e) {
+    // Never let notification setup break the app — record it and move on.
+    debugPrint('notification init failed: $e');
+    _initError = '$e';
   }
-
-  // Subscribe to messages from the background isolate.
-  FlutterForegroundTask.addTaskDataCallback(_onDataFromWatcher);
 }
 
 final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();

@@ -121,17 +121,17 @@ void main() {
     await tester.pump(const Duration(milliseconds: 10));
     await tester.pump(const Duration(milliseconds: 10));
 
-    // Home screen lists the session.
-    expect(find.text('تجربة E2E'), findsOneWidget);
+    // Home is the chat-first landing screen.
+    expect(find.textContaining('إزاي أقدر أساعدك'), findsOneWidget);
 
-    // Home screen lists the session.
+    // Projects & history live behind the "المشاريع" button.
+    await tester.tap(find.text('المشاريع'));
+    await tester.pumpAndSettle();
     expect(find.text('تجربة E2E'), findsOneWidget);
 
     // Open the chat and render the history.
     await tester.tap(find.text('تجربة E2E'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 10));
-    await tester.pump(const Duration(milliseconds: 10));
+    await tester.pumpAndSettle();
     expect(find.textContaining('السلام عليكم'), findsWidgets);
     expect(find.textContaining('وعليكم السلام'), findsWidgets);
 

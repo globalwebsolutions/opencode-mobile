@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/connection_store.dart';
 import '../core/opencode_client.dart';
 import '../state/app_state.dart';
+import 'connect_guide_screen.dart';
 import 'welcome_screen.dart';
 
 /// Server management, live status, and app info.
@@ -63,6 +64,17 @@ class SettingsScreen extends StatelessWidget {
               child: Text(
                 '⚠️ iOS: مش متاح دلوقتي — الموبايل iOS بيحتاج push من السيرفر (في الـ roadmap)',
                 style: TextStyle(fontSize: 11),
+              ),
+            ),
+          ]),
+          _Section(title: 'مساعدة', scheme: scheme, children: [
+            ListTile(
+              leading: const Icon(Icons.help_outline_rounded),
+              title: const Text('دليل التوصيل (من أي مكان)'),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (_) => const ConnectGuideScreen()),
               ),
             ),
           ]),

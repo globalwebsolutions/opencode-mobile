@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../app.dart';
 import '../state/app_state.dart';
+import 'connect_guide_screen.dart';
 
 /// First-run screen: pair the app with an OpenCode server.
 ///
@@ -170,6 +171,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text('اتصال'),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const ConnectGuideScreen()),
+                    ),
+                    icon:
+                        const Icon(Icons.help_outline_rounded, size: 18),
+                    label: const Text('مش عارف توصل؟ شوف دليل التوصيل'),
                   ),
                   if (app.error != null) ...[
                     const SizedBox(height: 16),

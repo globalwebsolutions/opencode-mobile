@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- R8/resource shrinking removes drawables only referenced by name
+     at runtime (e.g. the notification icon resolved via getIdentifier).
+     Keep them explicitly. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_ic_notification" />

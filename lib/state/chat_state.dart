@@ -35,6 +35,15 @@ class ChatState extends ChangeNotifier {
 
   OpenCodeClient? get _client => app.client;
 
+  /// Loads the message history and, when [thenSend] is provided (a chat
+  /// started from the home composer), sends it as the first message.
+  Future<void> bootstrap({String? thenSend}) async {
+    await load();
+    if (thenSend != null && thenSend.trim().isNotEmpty) {
+      await send(thenSend);
+    }
+  }
+
   /// Loads the message history and assigns per-type ordinals to text parts so
   /// later live deltas line up with the fetched content.
   Future<void> load() async {

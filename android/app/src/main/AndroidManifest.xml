@@ -5,8 +5,11 @@
     
     <!-- Foreground service permissions -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <!-- dataSync only: the watcher holds a live connection to the user's own
+         server. remoteMessaging was declared out of habit — it means
+         "transferring text messages from one device to another", which this
+         app does not do, and an unjustified type gets a release rejected. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
     
     <!-- Notification permissions (required for Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -58,7 +61,7 @@
              this entry has to live in the app manifest. -->
         <service
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
-            android:foregroundServiceType="dataSync|remoteMessaging"
+            android:foregroundServiceType="dataSync"
             android:exported="false"
             android:stopWithTask="false" />
 

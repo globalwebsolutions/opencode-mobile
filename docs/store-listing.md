@@ -128,27 +128,28 @@ token (encrypted) on the device.
 | الجمهور المستهدف | 18+ (أداة مطوّرين) |
 | التطبيق يحتوي على محتوى مخصّص للأطفال؟ | لا |
 
-## 5. App access (مهم — بيتوقف عليها القبول)
+## 5. Sign in details (كان اسمه App access) — مهم
 
-اختار **"All functionality is available without special access"** واكتب في
-الملاحظات (Review instructions):
+اختار **Yes** (لأن التطبيق بينفّذ أوامر على جهاز تاني — `actions to be carried
+out on another device`)، وبعدها علّم المربع اللي تحت:
+
+> ☑️ *"Sign in details in this declaration provide full access to all the
+> features and content within this app, including premium or paid content"*
+
+### النص الجاهز للصق — **479 حرف** (الحد الأقصى 500)
 
 ```
-The app is a client for an OpenCode server that normally runs on the
-reviewer's own computer. No server is required to review it:
+No sign-in is needed to review this app.
 
-1. Install and open the app.
-2. On the pairing screen tap "جرّب من غير سيرفر — وضع العرض" /
-   "Try it without a server — demo mode".
-3. The app opens with sample projects, conversations, a streamed agent reply,
-   tool cards and a pending permission request.
+1) Open the app and tap "Try it without a server — demo mode". Everything works with sample data: projects, a streamed agent reply, tool cards, reasoning, cost, and a permission request to approve or reject.
 
-To test the real flow: install OpenCode on a computer
-(curl -fsSL https://opencode.ai/install | bash), run
-`opencode service set hostname 0.0.0.0` and
-`opencode pair --url http://<computer-LAN-IP>:<PORT>`, then scan the QR from
-the app (or paste the printed link).
+2) Optional, real flow: install OpenCode on a computer, run "opencode service set hostname 0.0.0.0" then "opencode pair --url http://<PC-IP>:<PORT>", and scan the QR (or paste the link).
+
+No accounts, subscriptions or purchases.
 ```
+
+> 🔢 الخانة **500 حرف كحد أقصى** — لو عدّلت أي حاجة زوّد 10 حروف هامش،
+> وتقدر تتأكد بالعد: `wc -c`.
 
 ## 6. Data safety (أمان البيانات)
 

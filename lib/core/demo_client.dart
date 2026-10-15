@@ -20,7 +20,7 @@ class DemoOpenCodeClient extends OpenCodeClient {
   final StreamController<OcEvent> _events =
       StreamController<OcEvent>.broadcast();
   int _seq = 0;
-  final List<PermissionRequest> _pending = [demoPermissionRequest];
+  final List<PermissionRequest> _pending = [demoPermissionRequest()];
   final Map<String, List<OcMessage>> _history = {
     'ses_demo_1': demoSeedMessages(),
   };
@@ -222,14 +222,18 @@ class DemoOpenCodeClient extends OpenCodeClient {
 // Fixtures
 // -----------------------------------------------------------------------------
 
-const demoPermissionRequest = PermissionRequest(
-  id: 'perm_demo_1',
-  sessionID: 'ses_demo_1',
-  action: 'bash',
-  resources: ['rm -rf build/'],
-  message: 'الوكيل عايز يشغل أمر على جهازك — وافق أو ارفض',
-  metadata: {'title': 'تشغيل أمر'},
-);
+/// Built on demand (not `const`) so the demo data follows the app language.
+PermissionRequest demoPermissionRequest() => PermissionRequest(
+      id: 'perm_demo_1',
+      sessionID: 'ses_demo_1',
+      action: 'bash',
+      resources: const ['rm -rf build/'],
+      message: L.tr(
+        'الوكيل عايز يشغل أمر على جهازك — وافق أو ارفض',
+        'The agent wants to run a command on your machine — allow or deny',
+      ),
+      metadata: {'title': L.tr('تشغيل أمر', 'Run a command')},
+    );
 
 const demoProjects = <OcProject>[
   OcProject(id: 'prj_demo_1', canonical: '/Users/you/projects/taskflow', vcs: 'git'),
@@ -328,13 +332,16 @@ List<OcMessage> demoSeedMessages() => [
         model: const ModelRef(id: 'glm-5.3', providerID: 'opencode-go'),
         finish: 'stop',
         createdMs: DemoOpenCodeClient._now - 3500000,
-        content: const [
+        content: [
           OcPart(
             type: 'reasoning',
             ordinal: 0,
-            text: 'أشوف بنية المشروع الأول بعدين أضيف الشاشة في مسار الـ auth.',
+            text: L.tr(
+                'أشوف بنية المشروع الأول بعدين أضيف الشاشة في مسار الـ auth.',
+                'Let me read the project structure first, then add the screen on '
+                    'the auth route.'),
           ),
-          OcPart(
+          const OcPart(
             type: 'tool',
             toolId: 'tool_seed_1',
             toolName: 'read',
@@ -345,8 +352,12 @@ List<OcMessage> demoSeedMessages() => [
           OcPart(
             type: 'text',
             ordinal: 0,
-            text: 'تمام، لقيت نقطة الربط. ضفت شاشة تسجيل الدخول وربطتها بالتنقل، '
-                'وكمان ضفت التحقق من الإيميل والباسورد قبل الإرسال.',
+            text: L.tr(
+              'تمام، لقيت نقطة الربط. ضفت شاشة تسجيل الدخول وربطتها بالتنقل، '
+                  'وكمان ضفت التحقق من الإيميل والباسورد قبل الإرسال.',
+              'Found the right hook. I added the login screen, wired it into the '
+                  'navigation and added email/password validation before submit.',
+            ),
           ),
         ],
       ),

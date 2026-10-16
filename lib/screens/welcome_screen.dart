@@ -254,14 +254,17 @@ class _StepsCard extends StatelessWidget {
           _Step(
             number: '2',
             scheme: scheme,
-            title: L.tr('اطلب لينك pairing جديد (بيطلع معاه QR):', 'Request a pairing link (shows a QR):'),
-            code: L.tr('opencode pair --url http://<IP-الكمبيوتر>:<PORT>', 'opencode pair --url http://<IP>:<PORT>'),
+            title: L.tr('اطلب لينك pairing — بيطبع QR + لينكين (صالحين 5 دقايق):',
+                'Request a pairing link — prints a QR and two links (valid 5 minutes):'),
+            code: 'opencode pair',
           ),
           const SizedBox(height: 10),
           _Step(
             number: '3',
             scheme: scheme,
-            title: L.tr('امسح الـ QR من هنا — وخلاص، إنت داخل! 🎉', 'Scan the QR here — and you are in! 🎉'),
+            title: L.tr(
+                'امسح الـ QR من هنا — ولو اللينك فيه 127.0.0.1، انسخ اللي فيه 192.168 والصقه في الخانة تحت. مبروك 🎉',
+                'Scan the QR here — if the link says 127.0.0.1, copy the one with 192.168 and paste it below. Done 🎉'),
           ),
         ],
       ),

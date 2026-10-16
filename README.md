@@ -85,27 +85,30 @@ can try the app — see [`docs/PLAY_STORE.md`](docs/PLAY_STORE.md).)
 
 ### One-time pairing
 
-On the computer:
+On the computer — one command, no IP or port to look up:
 
 ```bash
-# 1) let the OpenCode server accept connections from the network
+# first time only: let the server accept connections from the network
 opencode service set hostname 0.0.0.0
 
-# 2) request a pairing link (prints a QR + a URL)
-opencode pair --url http://<COMPUTER-LAN-IP>:<PORT>
+# prints a QR code plus two links (both valid for 5 minutes)
+opencode pair
 ```
-
-> 💡 Find your IP with `ipconfig getifaddr en0` (macOS); the port is on the last line
-> printed by `opencode pair` (e.g. `49374`).
 
 On the phone:
 
-1. Install the app (see below).
-2. Tap **“Scan the QR code”** and scan what the terminal printed — or paste the link.
-3. That's it 🎉 — your sessions are there and you can start a new chat.
+1. Install the app and open it.
+2. Tap **“Scan the QR code”** and point the camera at the terminal.
+3. That's it 🎉 — your sessions appear and you can start a chat.
 
-> If the server is updated or changes port after a restart, the old pairing stops
-> working — just pair again. Your sessions live on the server and are unaffected.
+> ⚠️ `opencode pair` prints **two** links: one with `127.0.0.1` (that is the computer
+> talking to itself — a phone can never reach it) and one with your LAN address, e.g.
+> `192.168.1.127`. If the QR gives you the `127.0.0.1` one, copy the `192.168…` link
+> from the terminal and **paste** it into the app instead of scanning. The app warns you
+> when this happens.
+
+> If the server restarts or changes port, the old pairing stops working — just pair
+> again (sessions live on the server and are unaffected).
 
 ### Build from source
 

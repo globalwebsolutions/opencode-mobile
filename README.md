@@ -3,6 +3,14 @@
 **An unofficial mobile client for [OpenCode](https://opencode.ai)** — chat with the coding
 agent running on your own computer, from your phone.
 
+<p>
+  <a href="https://play.google.com/store/apps/details?id=com.gws.opencode">
+    <img alt="Get it on Google Play"
+         src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+         height="70">
+  </a>
+</p>
+
 Pair once with a QR code, then follow your sessions live: replies stream in word by word,
 reasoning folds away, every tool call shows up as a card, and permission requests are
 approved right from your pocket.
@@ -163,6 +171,12 @@ docs/                               # Play & App Store checklists, store copy, p
   (see `test/models_test.dart`).
 - **Plain HTTP** is allowed on the local network only, because that is how the OpenCode
   server talks. Use Tailscale (encrypted) if you connect over the internet.
+
+## Install
+
+- **Android** — [Google Play](https://play.google.com/store/apps/details?id=com.gws.opencode)
+  (package `com.gws.opencode`), or build the APK yourself (see below)
+- **iOS** — not on the App Store yet
 
 ## Publishing
 
